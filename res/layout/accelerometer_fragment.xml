@@ -12,10 +12,24 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
-        android:id="@+id/textAccel"
+        android:id="@+id/textAccelX"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Value: "
+        android:text="Value X: "
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textAccelY"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Value Y: "
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textAccelZ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Value Z: "
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </LinearLayout>

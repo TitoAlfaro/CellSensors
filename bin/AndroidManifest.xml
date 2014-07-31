@@ -8,20 +8,35 @@
         android:minSdkVersion="11"
         android:targetSdkVersion="19" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity
-            android:name="mit.edu.obmg.cellsensors.CellSensorsMainActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <uses-library
+            android:name="com.android.future.usb.accessory"
+            android:required="false" />
+            <activity
+                android:name="mit.edu.obmg.cellsensors.CellSensorsMainActivity"
+                android:launchMode="singleTask"
+                android:label="@string/app_name" >
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+            </activity>
+
+            <service android:name="mit.edu.obmg.cellsensors.IOIOConnection" />
+                <intent-filter>
+                    <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+                </intent-filter>
+
+                <meta-data
+                    android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+                    android:resource="@xml/accessory_filter" />
     </application>
 
 </manifest>

@@ -19,7 +19,7 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 	SensorManager mSensorManager;
 	Sensor mAccel;
 	
-	TextView mAccelValue;
+	TextView mAccelValueX, mAccelValueY, mAccelValueZ;
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -36,7 +36,9 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 		View view = inflater.inflate(R.layout.accelerometer_fragment, container,
 				false);
 
-		mAccelValue = (TextView) view.findViewById(R.id.textAccel);
+		mAccelValueX = (TextView) view.findViewById(R.id.textAccelX);
+		mAccelValueY = (TextView) view.findViewById(R.id.textAccelY);
+		mAccelValueZ = (TextView) view.findViewById(R.id.textAccelZ);
 		
 		return view;
 	}
@@ -45,8 +47,12 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		float lux = event.values[0];
-		mAccelValue.setText("Values: " + lux);
+		float _rawValueX = event.values[0];
+		float _rawValueY = event.values[1];
+		float _rawValueZ = event.values[2];
+		mAccelValueX.setText("Values X: " + _rawValueX);
+		mAccelValueY.setText("Values Y: " + _rawValueY);
+		mAccelValueZ.setText("Values Z: " + _rawValueZ);
 	}
 
 	@Override
