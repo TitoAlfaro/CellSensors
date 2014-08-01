@@ -101,7 +101,7 @@ public class SensorList extends Fragment {
 
 		for (int i = 0; i < sensorList.size(); i++) {
 			listSensorType.add(sensorList.get(i).getName());
-			Log.i(TAG, " Sensor: " + sensorList.get(i).getName());
+			Log.i(TAG, " Sensor: " + sensorList.get(i).toString());
 		}
 
 	}

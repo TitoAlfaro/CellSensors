@@ -25,10 +25,12 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	// Sensor
 	SensorManager mSensorManager;
 	Sensor mLight;
-	float lux;
+	float _sensorValue;
 
+	//UI
 	TextView mLightValue;
 	
+	//IOIOConnection
 	Intent IOIOIntent;
 	
 	/** Messenger for communicating with the service. */
@@ -43,6 +45,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		View view = inflater.inflate(R.layout.lightlevel_fragment, container,
 				false);
 		mLightValue = (TextView) view.findViewById(R.id.textLight);
+		
 		IOIOIntent = new Intent(getActivity(), IOIOConnection.class);
 		getActivity().startService(IOIOIntent);
 
@@ -67,15 +70,14 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		lux = event.values[0];
-		mLightValue.setText("Values: " + lux);
-		sayHello(lux);
+		_sensorValue = event.values[0];
+		mLightValue.setText("Values: " + _sensorValue);
+		sendData(_sensorValue);
 	}
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
-
 	}
 
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -94,12 +96,12 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		}
 	};
 
-	public void sayHello(float v) {
+	public void sendData(float v) {
 		if (!mBound)
 			return;
 		// Create and send a message to the service, using a supported 'what'
 		// value
-		Message msg = Message.obtain(null, IOIOConnection.MSG_SAY_HELLO, (int) lux, 0);
+		Message msg = Message.obtain(null, IOIOConnection.LIGHT_LEVEL, (int) _sensorValue, 0);
 		try {
 			mService.send(msg);
 		} catch (RemoteException e) {
@@ -110,7 +112,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		// bindMethod();
 		mSensorManager.registerListener(this, mLight,
 				SensorManager.SENSOR_DELAY_NORMAL);
 		getActivity().startService(IOIOIntent);
@@ -119,7 +120,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		// unBindMethod();
 		mSensorManager.unregisterListener(this);
 		getActivity().stopService(IOIOIntent);
 	}
@@ -139,6 +139,11 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		// Unbind from the service
+		if (mBound) {
+			getActivity().unbindService(mConnection);
+			mBound = false;
+		}
 		getActivity().stopService(IOIOIntent);
 	}
 }

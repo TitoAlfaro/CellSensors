@@ -20,7 +20,11 @@ import android.widget.Toast;
 public class IOIOConnection extends IOIOService {
 	final String TAG = "IOIOConnection";
 	/** Command to the service to display a message */
-	static final int MSG_SAY_HELLO = 1;
+	static final int LIGHT_LEVEL = 1;
+	static final int PRESSURE_LEVEL = 2;
+	static final int TEMPERATURE_LEVEL = 3;
+	static final int MAGNETOMETER_LEVEL = 4;
+	static final int ACCELEROMETER_LEVEL = 5;
 	float _sensorValue = 0;
 
 	/**
@@ -30,9 +34,29 @@ public class IOIOConnection extends IOIOService {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case MSG_SAY_HELLO:
-				// Toast.makeText(getApplicationContext(), "hello!"+msg.arg1,
-				// Toast.LENGTH_SHORT).show();
+			case LIGHT_LEVEL:
+//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+//				 Toast.LENGTH_SHORT).show();
+				_sensorValue = msg.arg1;
+				break;
+			case PRESSURE_LEVEL:
+//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+//				 Toast.LENGTH_SHORT).show();
+				_sensorValue = msg.arg1;
+				break;
+			case TEMPERATURE_LEVEL:
+//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+//				 Toast.LENGTH_SHORT).show();
+				_sensorValue = msg.arg1;
+				break;
+			case MAGNETOMETER_LEVEL:
+//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+//				 Toast.LENGTH_SHORT).show();
+				_sensorValue = msg.arg1;
+				break;
+			case ACCELEROMETER_LEVEL:
+//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+//				 Toast.LENGTH_SHORT).show();
 				_sensorValue = msg.arg1;
 				break;
 			default:
@@ -100,5 +124,19 @@ public class IOIOConnection extends IOIOService {
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;
 			nm.notify(0, notification);
 		}
+	}
+	
+	@Override
+	public boolean onUnbind(Intent intent) {
+		Log.i(TAG, "onUnbind");
+		stopSelf();
+		return super.onUnbind(intent);
+	}
+
+	@Override
+	public void onDestroy() {
+		Log.i(TAG, "onDestroy");
+		stopSelf();
+		super.onDestroy();
 	}
 }
