@@ -19,6 +19,16 @@ import android.widget.Toast;
 
 public class IOIOConnection extends IOIOService {
 	final String TAG = "IOIOConnection";
+
+	// MultiThreading
+	private Thread Vibration1;
+	Thread thread1 = new Thread(Vibration1);
+
+	// Vibration
+	float rate1 = 1000;
+	int vibPin = 40;
+	DigitalOutput out;
+
 	/** Command to the service to display a message */
 	static final int LIGHT_LEVEL = 1;
 	static final int PRESSURE_LEVEL = 2;
@@ -35,28 +45,28 @@ public class IOIOConnection extends IOIOService {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case LIGHT_LEVEL:
-//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
-//				 Toast.LENGTH_SHORT).show();
+				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+				// Toast.LENGTH_SHORT).show();
 				_sensorValue = msg.arg1;
 				break;
 			case PRESSURE_LEVEL:
-//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
-//				 Toast.LENGTH_SHORT).show();
+				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+				// Toast.LENGTH_SHORT).show();
 				_sensorValue = msg.arg1;
 				break;
 			case TEMPERATURE_LEVEL:
-//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
-//				 Toast.LENGTH_SHORT).show();
+				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+				// Toast.LENGTH_SHORT).show();
 				_sensorValue = msg.arg1;
 				break;
 			case MAGNETOMETER_LEVEL:
-//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
-//				 Toast.LENGTH_SHORT).show();
+				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+				// Toast.LENGTH_SHORT).show();
 				_sensorValue = msg.arg1;
 				break;
 			case ACCELEROMETER_LEVEL:
-//				 Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
-//				 Toast.LENGTH_SHORT).show();
+				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+				// Toast.LENGTH_SHORT).show();
 				_sensorValue = msg.arg1;
 				break;
 			default:
@@ -85,11 +95,34 @@ public class IOIOConnection extends IOIOService {
 	protected IOIOLooper createIOIOLooper() {
 		return new BaseIOIOLooper() {
 			private DigitalOutput led_;
+			private Vibration vibThread;
+
+			@Override
+			public void disconnected() {
+				super.disconnected();
+				Log.i(TAG, "IOIO disconnected, killing workers");
+				if (vibThread != null) {
+					vibThread.abort();
+				}
+				try {
+					if (vibThread != null) {
+						vibThread.join();
+					}
+
+					Log.i(TAG, "All workers dead");
+				} catch (InterruptedException e) {
+					Log.w(TAG, "Interrupted. Some workers may linger.");
+				}
+
+			}
 
 			@Override
 			protected void setup() throws ConnectionLostException,
 					InterruptedException {
 				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
+
+				vibThread = new Vibration(ioio_);
+				vibThread.start();
 			}
 
 			@Override
@@ -125,7 +158,70 @@ public class IOIOConnection extends IOIOService {
 			nm.notify(0, notification);
 		}
 	}
-	
+
+	class Vibration extends Thread {
+		private final String TAG = "TempSensingVibThread";
+		private DigitalOutput led;
+
+		private IOIO ioio_;
+		private boolean run_ = true;
+		int vibPin_;
+		int threadNum_;
+		float inTemp_;
+
+		public Vibration(IOIO ioio) throws InterruptedException {
+			ioio_ = ioio;
+		}
+
+		@Override
+		public void run() {
+			Log.d(TAG, "Thread [" + getName() + "] is running.");
+
+			while (run_) {
+				try {
+					out = ioio_.openDigitalOutput(vibPin, true);
+					while (true) {
+
+						final float rate = map(_sensorValue, (float) 0, // minSensor.getValue(),
+								(float) 100, // maxSensor.getValue(),
+								(float) 1000, (float) 5);
+
+						out.write(true);
+						sleep((long) rate);
+						out.write(false);
+						sleep((long) 100);
+
+					}
+				} catch (ConnectionLostException e) {
+				} catch (Exception e) {
+					Log.e(TAG, "Unexpected exception caught in VibThread", e);
+					ioio_.disconnect();
+					break;
+				} finally {
+					try {
+						ioio_.waitForDisconnect();
+					} catch (InterruptedException e) {
+					}
+				}
+			}
+		}
+
+		public void abort() {
+			run_ = false;
+			interrupt();
+		}
+	}
+
+	float map(float x, float in_min, float in_max, float out_min, float out_max) {
+		if (x < in_min)
+			return out_min;
+		else if (x > in_max)
+			return out_max;
+		else
+			return (x - in_min) * (out_max - out_min) / (in_max - in_min)
+					+ out_min;
+	}
+
 	@Override
 	public boolean onUnbind(Intent intent) {
 		Log.i(TAG, "onUnbind");

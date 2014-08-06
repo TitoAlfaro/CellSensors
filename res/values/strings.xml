@@ -4,5 +4,12 @@
     <string name="app_name">CellSensors</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="ConnectionEstablishedMsg">HelloAccessory Connection established with RemotePeer</string>
+    <string name="ConnectionAlreadyExist">HelloAccessory Connection Already Exist!</string>
+    <string name="ConnectionFailure">HelloAccessory Connection Failure!</string>
+    <string name="NoPeersFound">No peers for HelloAccessory found !!</string>
+    <string name="buttonLeft">Connect</string>
+    <string name="buttonMid">Disconnect</string>
+    <string name="buttonRight">Send HelloAccessory!</string>
 
 </resources>

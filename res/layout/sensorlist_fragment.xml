@@ -45,6 +45,12 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:text="Accel" />
+        
+        <Button
+            android:id="@+id/btnAccessory"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Accessory" />
 
        
     </LinearLayout>

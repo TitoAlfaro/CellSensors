@@ -1091,18 +1091,24 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f060016;
         public static final int action_menu_presenter=0x7f060017;
         public static final int action_mode_close_button=0x7f060024;
-        public static final int action_settings=0x7f06004d;
+        public static final int action_settings=0x7f060055;
         public static final int activity_chooser_view_content=0x7f060025;
         public static final int always=0x7f06000b;
         public static final int beginning=0x7f060011;
-        public static final int btnAccel=0x7f06004a;
-        public static final int btnLight=0x7f060047;
-        public static final int btnMagnet=0x7f060048;
-        public static final int btnPress=0x7f060049;
-        public static final int btnTemp=0x7f060046;
+        public static final int btnAccel=0x7f060051;
+        public static final int btnAccessory=0x7f060052;
+        public static final int btnGear=0x7f060047;
+        public static final int btnIOIO=0x7f060046;
+        public static final int btnLight=0x7f06004e;
+        public static final int btnMagnet=0x7f06004f;
+        public static final int btnPress=0x7f060050;
+        public static final int btnTemp=0x7f06004d;
+        public static final int button1=0x7f060040;
+        public static final int button2=0x7f060041;
+        public static final int button3=0x7f060042;
         public static final int checkbox=0x7f06002d;
         public static final int collapseActionView=0x7f06000d;
-        public static final int container=0x7f060040;
+        public static final int container=0x7f060044;
         public static final int default_activity_button=0x7f060028;
         public static final int dialog=0x7f06000e;
         public static final int disableHome=0x7f060008;
@@ -1111,20 +1117,21 @@ containing a value of this type.
         public static final int end=0x7f060013;
         public static final int expand_activities_button=0x7f060026;
         public static final int expanded_menu=0x7f06002c;
-        public static final int fragmentPlaceHolder=0x7f06004b;
+        public static final int fragmentPlaceHolder=0x7f060053;
         public static final int home=0x7f060014;
         public static final int homeAsUp=0x7f060005;
         public static final int icon=0x7f06002a;
         public static final int ifRoom=0x7f06000a;
         public static final int image=0x7f060027;
         public static final int listMode=0x7f060001;
-        public static final int listPlaceHolder=0x7f060045;
+        public static final int listPlaceHolder=0x7f06004c;
         public static final int list_item=0x7f060029;
-        public static final int listfragment=0x7f060044;
+        public static final int listfragment=0x7f06004b;
         public static final int middle=0x7f060012;
         public static final int never=0x7f060009;
         public static final int none=0x7f060010;
         public static final int normal=0x7f060000;
+        public static final int outChoice=0x7f060045;
         public static final int progress_circular=0x7f060018;
         public static final int progress_horizontal=0x7f060019;
         public static final int radio=0x7f06002f;
@@ -1145,13 +1152,14 @@ containing a value of this type.
         public static final int split_action_bar=0x7f06001e;
         public static final int submit_area=0x7f060039;
         public static final int tabMode=0x7f060002;
+        public static final int text1=0x7f060043;
         public static final int textAccelX=0x7f06003d;
         public static final int textAccelY=0x7f06003e;
         public static final int textAccelZ=0x7f06003f;
-        public static final int textLight=0x7f060041;
-        public static final int textMagnet=0x7f060042;
-        public static final int textPressure=0x7f060043;
-        public static final int textTemp=0x7f06004c;
+        public static final int textLight=0x7f060048;
+        public static final int textMagnet=0x7f060049;
+        public static final int textPressure=0x7f06004a;
+        public static final int textTemp=0x7f060054;
         public static final int textView1=0x7f06003c;
         public static final int title=0x7f06002b;
         public static final int top_action_bar=0x7f060020;
@@ -1210,18 +1218,23 @@ containing a value of this type.
         public static final int abc_search_view=0x7f030016;
         public static final int abc_simple_decor=0x7f030017;
         public static final int accelerometer_fragment=0x7f030018;
-        public static final int cellsensormainactivity_main=0x7f030019;
-        public static final int lightlevel_fragment=0x7f03001a;
-        public static final int magnet_fragment=0x7f03001b;
-        public static final int pressure_fragment=0x7f03001c;
-        public static final int sensorlist_fragment=0x7f03001d;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001e;
-        public static final int temperature_fragment=0x7f03001f;
+        public static final int accessory_fragment=0x7f030019;
+        public static final int cellsensormainactivity_main=0x7f03001a;
+        public static final int lightlevel_fragment=0x7f03001b;
+        public static final int magnet_fragment=0x7f03001c;
+        public static final int pressure_fragment=0x7f03001d;
+        public static final int sensorlist_fragment=0x7f03001e;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001f;
+        public static final int temperature_fragment=0x7f030020;
     }
     public static final class menu {
         public static final int cell_sensors_main=0x7f0d0000;
     }
     public static final class string {
+        public static final int ConnectionAlreadyExist=0x7f0b0011;
+        public static final int ConnectionEstablishedMsg=0x7f0b0010;
+        public static final int ConnectionFailure=0x7f0b0012;
+        public static final int NoPeersFound=0x7f0b0013;
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
          */
         public static final int abc_action_bar_home_description=0x7f0b0001;
@@ -1264,6 +1277,9 @@ containing a value of this type.
         public static final int abc_shareactionprovider_share_with_application=0x7f0b000b;
         public static final int action_settings=0x7f0b000f;
         public static final int app_name=0x7f0b000d;
+        public static final int buttonLeft=0x7f0b0014;
+        public static final int buttonMid=0x7f0b0015;
+        public static final int buttonRight=0x7f0b0016;
         public static final int hello_world=0x7f0b000e;
     }
     public static final class style {
