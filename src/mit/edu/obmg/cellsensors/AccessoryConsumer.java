@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class AccessoryConsumer extends Fragment {
@@ -27,6 +28,8 @@ public class AccessoryConsumer extends Fragment {
 
 	private boolean mIsBound = false;
 
+	//UI
+	Button connectButton, disconnectButton, sendButton;
 	public static TextView mTextView;
 
 	@Override
@@ -37,6 +40,25 @@ public class AccessoryConsumer extends Fragment {
 
 
 		mTextView = (TextView) view.findViewById(R.id.text1);
+
+		connectButton = (Button) view.findViewById(R.id.btnConnect);
+		connectButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+    			startConnection();
+            }
+        });
+		disconnectButton = (Button) view.findViewById(R.id.btnDisconnect);
+		disconnectButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+    			closeConnection();
+            }
+        });
+		sendButton = (Button) view.findViewById(R.id.btnSend);
+		sendButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+    			sendHelloAccessory();
+            }
+        });
 
 		doBindService();
 
@@ -79,7 +101,7 @@ public class AccessoryConsumer extends Fragment {
 		}
 	}
 
-	public void mOnClick(View v) {
+/*	public void mOnClick(View v) {
 		switch (v.getId()) {
 		case R.id.button1: {
 			startConnection();
@@ -95,7 +117,7 @@ public class AccessoryConsumer extends Fragment {
 		}
 		}
 	}
-
+*/
 	private void startConnection() {
 		if (mIsBound == true && mConsumerService != null) {
 			mTextView.setText("startConnection");

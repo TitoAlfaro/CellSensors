@@ -1097,15 +1097,15 @@ containing a value of this type.
         public static final int beginning=0x7f060011;
         public static final int btnAccel=0x7f060051;
         public static final int btnAccessory=0x7f060052;
+        public static final int btnConnect=0x7f060040;
+        public static final int btnDisconnect=0x7f060041;
         public static final int btnGear=0x7f060047;
         public static final int btnIOIO=0x7f060046;
         public static final int btnLight=0x7f06004e;
         public static final int btnMagnet=0x7f06004f;
         public static final int btnPress=0x7f060050;
+        public static final int btnSend=0x7f060042;
         public static final int btnTemp=0x7f06004d;
-        public static final int button1=0x7f060040;
-        public static final int button2=0x7f060041;
-        public static final int button3=0x7f060042;
         public static final int checkbox=0x7f06002d;
         public static final int collapseActionView=0x7f06000d;
         public static final int container=0x7f060044;
@@ -1514,6 +1514,7 @@ containing a value of this type.
     }
     public static final class xml {
         public static final int accessory_filter=0x7f050000;
+        public static final int accessoryservices=0x7f050001;
     }
     public static final class styleable {
         /**  ============================================ 

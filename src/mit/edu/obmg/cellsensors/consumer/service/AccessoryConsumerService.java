@@ -108,7 +108,7 @@ public class AccessoryConsumerService extends SAAgent {
             stopSelf();
         }
 
-    }		
+     }		
     
     @Override 
     protected void onServiceConnectionRequested(SAPeerAgent peerAgent) { 
