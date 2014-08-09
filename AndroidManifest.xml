@@ -38,7 +38,7 @@
         </activity>
 
         <service android:name="mit.edu.obmg.cellsensors.IOIOConnection" />
-        <service android:name="mit.edu.obmg.cellsensors.consumer.service.AccessoryConsumerService" />
+        <service android:name="mit.edu.obmg.cellsensors.consumer.service.CellSensorsAccessoryConsumerService" />
 
         <intent-filter>
             <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
@@ -61,7 +61,7 @@
             android:resource="@xml/accessory_filter" />
         <meta-data
             android:name="AccessoryServicesLocation"
-            android:value="/res/xml/accessoryservices.xml" />
+            android:value="/res/xml/cellsensorsaccessoryservices.xml" />
     </application>
 
 </manifest>

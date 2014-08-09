@@ -631,4 +631,4 @@ int styleable View_android_focusable 0
 int styleable View_paddingEnd 2
 int styleable View_paddingStart 1
 int xml accessory_filter 0x7f050000
-int xml accessoryservices 0x7f050001
+int xml cellsensorsaccessoryservices 0x7f050001

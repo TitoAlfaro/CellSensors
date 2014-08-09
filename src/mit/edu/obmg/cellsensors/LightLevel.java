@@ -1,6 +1,6 @@
 package mit.edu.obmg.cellsensors;
 
-import mit.edu.obmg.cellsensors.consumer.service.AccessoryConsumerService;
+import mit.edu.obmg.cellsensors.consumer.service.CellSensorsAccessoryConsumerService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;

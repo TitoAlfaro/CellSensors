@@ -17,10 +17,10 @@ import com.samsung.android.sdk.accessory.SAAgent;
 import com.samsung.android.sdk.accessory.SAPeerAgent;
 import com.samsung.android.sdk.accessory.SASocket;
 
-public class AccessoryConsumerService extends SAAgent {
+public class CellSensorsAccessoryConsumerService extends SAAgent {
 	public static final String TAG = "AccessoryConsumerService";
 
-	public static final int HELLOACCESSORY_CHANNEL_ID = 104;
+	public static final int SAP_SERVICE_CHANNEL_ID = 123;
 
 	@Override
 	protected void onError(String errorMessage, int errorCode) {
@@ -33,13 +33,13 @@ public class AccessoryConsumerService extends SAAgent {
 
 	Handler mHandler = new Handler();
 
-	public AccessoryConsumerService() {
+	public CellSensorsAccessoryConsumerService() {
 		super("AccessoryConsumerService", AccessoryConsumerConnection.class);
 	}
 
 	public class LocalBinder extends Binder {
-		public AccessoryConsumerService getService() {
-			return AccessoryConsumerService.this;
+		public CellSensorsAccessoryConsumerService getService() {
+			return CellSensorsAccessoryConsumerService.this;
 		}
 	}
 
@@ -166,7 +166,7 @@ public class AccessoryConsumerService extends SAAgent {
 
 		if (mConnectionHandler != null) {
 			try {
-				mConnectionHandler.send(HELLOACCESSORY_CHANNEL_ID,
+				mConnectionHandler.send(SAP_SERVICE_CHANNEL_ID,
 						jsonStringToSend.getBytes());
 
 				retvalue = true;

@@ -1,6 +1,6 @@
 package mit.edu.obmg.cellsensors;
 
-import mit.edu.obmg.cellsensors.consumer.service.AccessoryConsumerService;
+import mit.edu.obmg.cellsensors.consumer.service.CellSensorsAccessoryConsumerService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,13 +18,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class AccessoryConsumer extends Fragment {
-	public static final String TAG = "HelloAccessoryActivity";
+	public static final String TAG = "AccessoryConsumer";
 
 	static final String SAP_ACTION_ATTACHED = "android.accessory.device.action.ATTACHED";
 
 	static final String SAP_ACTION_DETACHED = "android.accessory.device.action.DETACHED";
 
-	private AccessoryConsumerService mConsumerService = null;
+	private CellSensorsAccessoryConsumerService mConsumerService = null;
 
 	private boolean mIsBound = false;
 
@@ -75,7 +75,7 @@ public class AccessoryConsumer extends Fragment {
 
 	@Override
 	public void onDestroy() {
-		Log.d(TAG, "HelloAccessoryActivity.onDestroy()");
+		Log.d(TAG, "AccessoryConsumer.onDestroy()");
 
 		getActivity().unregisterReceiver(mBroadcastReceiver);
 
@@ -88,7 +88,7 @@ public class AccessoryConsumer extends Fragment {
 
 	void doBindService() {
 		mIsBound = getActivity().bindService(new Intent(getActivity(),
-				AccessoryConsumerService.class), mConnection,
+				CellSensorsAccessoryConsumerService.class), mConnection,
 
 		Context.BIND_AUTO_CREATE);
 	}
@@ -101,23 +101,6 @@ public class AccessoryConsumer extends Fragment {
 		}
 	}
 
-/*	public void mOnClick(View v) {
-		switch (v.getId()) {
-		case R.id.button1: {
-			startConnection();
-			break;
-		}
-		case R.id.button2: {
-			closeConnection();
-			break;
-		}
-		case R.id.button3: {
-			sendHelloAccessory();
-			break;
-		}
-		}
-	}
-*/
 	private void startConnection() {
 		if (mIsBound == true && mConsumerService != null) {
 			mTextView.setText("startConnection");
@@ -170,7 +153,7 @@ public class AccessoryConsumer extends Fragment {
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			Log.d(TAG, "onServiceConnected()");
 
-			mConsumerService = ((AccessoryConsumerService.LocalBinder) service)
+			mConsumerService = ((CellSensorsAccessoryConsumerService.LocalBinder) service)
 					.getService();
 
 			mConsumerService.findPeers();
