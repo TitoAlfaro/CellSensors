@@ -1,5 +1,10 @@
 package mit.edu.obmg.cellsensors;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphViewSeries;
+import com.jjoe64.graphview.LineGraphView;
+
 import mit.edu.obmg.cellsensors.consumer.service.CellSensorsAccessoryConsumerService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -12,6 +17,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -23,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView.FindListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -45,6 +52,13 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
 	int maxPicker = 500;
+	
+	//Graph
+    private final Handler mHandler = new Handler();
+    private Runnable mTimer2;
+    private GraphView graphView;
+    private double graph2LastXValue = 5d;
+    GraphViewSeries exampleSeries;
 
 	/**** IOIOConnection ****/
 	Intent IOIOIntent;
@@ -98,6 +112,23 @@ public class LightLevel extends Fragment implements SensorEventListener {
 				new Intent(getActivity(), IOIOConnection.class), mIOIOConnection,
 				Context.BIND_AUTO_CREATE);
 
+		/**** GRAPH VIEW ****/
+		// init example series data
+		exampleSeries = new GraphViewSeries(new GraphViewData[] {
+		    new GraphViewData(0, 0)
+		});
+		
+		graphView = new LineGraphView(
+		    getActivity() // context
+		    , "GraphViewDemo" // heading
+		);
+		graphView.addSeries(exampleSeries); // data
+        graphView.setViewPort(1, 8);
+        graphView.setScalable(true);
+		 
+		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
+		layout.addView(graphView);
+		/**** GRAPH VIEW ****/
 
 		return view;
 	}
@@ -187,13 +218,26 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		mSensorManager.registerListener(this, mLight,
 				SensorManager.SENSOR_DELAY_NORMAL);
 		getActivity().startService(IOIOIntent);
+		
+		/*** Graph ****/
+		mTimer2 = new Runnable() {
+            @Override
+            public void run() {
+                graph2LastXValue += 1d;
+                exampleSeries.appendData(new GraphViewData(graph2LastXValue, _sensorValue), true, 10);
+                mHandler.postDelayed(this, 200);
+            }
+        };
+        mHandler.postDelayed(mTimer2, 1000);
+		/*** Graph ****/
 	}
-
+	
 	@Override
 	public void onPause() {
 		super.onPause();
 		mSensorManager.unregisterListener(this);
 		getActivity().stopService(IOIOIntent);
+        mHandler.removeCallbacks(mTimer2);
 	}
 
 	@Override
