@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView.FindListener;
 import android.widget.Button;
+import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -41,6 +42,9 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	boolean choiceIOIOFlag;
 	private RadioGroup radioG;
 	private RadioButton btnIOIO, btnGear;
+	private NumberPicker minValue, maxValue;
+	int minPicker = 0;
+	int maxPicker = 500;
 
 	/**** IOIOConnection ****/
 	Intent IOIOIntent;
@@ -48,6 +52,8 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	Messenger mService = null;
 	// Flag indicating whether we have called bind on the service. */
 	boolean mBound;
+	
+	MapValues mapValue = new MapValues();
 	/**** ****/
 
 	@Override
@@ -60,6 +66,29 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		btnIOIO = (RadioButton) view.findViewById(R.id.btnIOIO);
 		btnGear = (RadioButton) view.findViewById(R.id.btnGear);
 
+		String[] sensorNums = new String[maxPicker+1];
+		for (int i = 0; i < sensorNums.length; i++) {
+			sensorNums[i] = Integer.toString(i);
+		}
+
+		minValue = (NumberPicker) view.findViewById(R.id.minValue);
+		minValue.setMinValue(minPicker);
+		minValue.setMaxValue(maxPicker);
+		minValue.setWrapSelectorWheel(false);
+		minValue.setDisplayedValues(sensorNums);
+		minValue.setValue(minPicker);
+		minValue
+				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+
+		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
+		maxValue.setMinValue(minPicker);
+		maxValue.setMaxValue(maxPicker);
+		maxValue.setWrapSelectorWheel(false);
+		maxValue.setDisplayedValues(sensorNums);
+		maxValue.setValue(maxPicker);
+		maxValue
+				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		
 		/**** IOIO ****/
 		IOIOIntent = new Intent(getActivity(), IOIOConnection.class);
 		getActivity().startService(IOIOIntent);
@@ -103,11 +132,15 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	public void sendData(float v) {
 		if (!mBound)
 			return;
+		
+		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
+				maxValue.getValue(),
+				(float) 2000, (float) 5);
 
 			// Create and send a message to the service, using a supported
 			// 'what' value
 			Message msg = Message.obtain(null, IOIOConnection.LIGHT_LEVEL,
-					(int) _sensorValue, 0);
+					(int) rate, 0);
 			try {
 				mService.send(msg);
 			} catch (RemoteException e) {

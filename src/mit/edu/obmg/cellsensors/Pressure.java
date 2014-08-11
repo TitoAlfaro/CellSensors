@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class Pressure extends Fragment  implements SensorEventListener{
@@ -29,9 +30,13 @@ public class Pressure extends Fragment  implements SensorEventListener{
 	
 	//UI
 	TextView mPressureValue;
+	private NumberPicker minValue, maxValue;
+	int minPicker = 500;
+	int maxPicker = 2000;
 
 	//IOIOConnection
 	Intent IOIOIntent;
+	MapValues mapValue = new MapValues();
 	
 	/** Messenger for communicating with the service. */
 	Messenger mService = null;
@@ -46,6 +51,30 @@ public class Pressure extends Fragment  implements SensorEventListener{
 				false);
 
 		mPressureValue = (TextView) view.findViewById(R.id.textPressure);
+
+		String[] sensorNums = new String[maxPicker+1];
+		for (int i = 0; i < sensorNums.length; i++) {
+			sensorNums[i] = Integer.toString(i);
+		}
+
+		minValue = (NumberPicker) view.findViewById(R.id.minValue);
+		minValue.setMinValue(minPicker);
+		minValue.setMaxValue(maxPicker);
+		minValue.setWrapSelectorWheel(false);
+		minValue.setDisplayedValues(sensorNums);
+		minValue.setValue(minPicker);
+		minValue
+				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+
+		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
+		maxValue.setMinValue(minPicker);
+		maxValue.setMaxValue(maxPicker);
+		maxValue.setWrapSelectorWheel(false);
+		maxValue.setDisplayedValues(sensorNums);
+		maxValue.setValue(maxPicker);
+		maxValue
+				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		
 		IOIOIntent = new Intent(getActivity(), IOIOConnection.class);
 		getActivity().startService(IOIOIntent);
 
@@ -100,6 +129,11 @@ public class Pressure extends Fragment  implements SensorEventListener{
 	public void sendData(float v) {
 		if (!mBound)
 			return;
+
+		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
+				maxValue.getValue(),
+				(float) 2000, (float) 5);
+		
 		// Create and send a message to the service, using a supported 'what'
 		// value
 		Message msg = Message.obtain(null, IOIOConnection.PRESSURE_LEVEL, (int) _sensorValue, 0);

@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 public class IOIOConnection extends IOIOService {
 	final String TAG = "IOIOConnection";
-
+	
 	// MultiThreading
 	private Thread Vibration1;
 	Thread thread1 = new Thread(Vibration1);
@@ -182,12 +182,8 @@ public class IOIOConnection extends IOIOService {
 					out = ioio_.openDigitalOutput(vibPin, true);
 					while (true) {
 
-						final float rate = map(_sensorValue, (float) 0, // minSensor.getValue(),
-								(float) 100, // maxSensor.getValue(),
-								(float) 1000, (float) 5);
-
 						out.write(true);
-						sleep((long) rate);
+						sleep((long) _sensorValue);
 						out.write(false);
 						sleep((long) 100);
 
@@ -210,16 +206,6 @@ public class IOIOConnection extends IOIOService {
 			run_ = false;
 			interrupt();
 		}
-	}
-
-	float map(float x, float in_min, float in_max, float out_min, float out_max) {
-		if (x < in_min)
-			return out_min;
-		else if (x > in_max)
-			return out_max;
-		else
-			return (x - in_min) * (out_max - out_min) / (in_max - in_min)
-					+ out_min;
 	}
 
 	@Override
