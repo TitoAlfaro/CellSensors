@@ -177,9 +177,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 			}
 
 	}
-	/****************************
-	*    		IOIO			*
-	*****************************/
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
@@ -192,6 +189,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
+
 	}
 	
 	private ServiceConnection mIOIOConnection = new ServiceConnection() {
@@ -213,6 +211,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		// bindMethod();
 		mSensorManager.registerListener(this, mLight,
 				SensorManager.SENSOR_DELAY_NORMAL);
 		getActivity().startService(IOIOIntent);
@@ -233,6 +232,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onPause() {
 		super.onPause();
+		// unBindMethod();
 		mSensorManager.unregisterListener(this);
 		getActivity().stopService(IOIOIntent);
         mHandler.removeCallbacks(mTimer2);

@@ -1,7 +1,5 @@
 package mit.edu.obmg.cellsensors;
 
-import java.util.zip.Inflater;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,14 +21,11 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class Accelerometer extends Fragment implements SensorEventListener {
-	final String TAG = "Accelerometer";
-	
-	//Sensor
+
 	SensorManager mSensorManager;
 	Sensor mAccel;
 	float _sensorValue;
 	
-	//UI
 	TextView mAccelValueX, mAccelValueY, mAccelValueZ;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
@@ -48,6 +43,15 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 
 	/** Flag indicating whether we have called bind on the service. */
 	boolean mBound;
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		
+		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+		mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,25 +86,9 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 		maxValue
 				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 		
-		IOIOIntent = new Intent(getActivity(), IOIOConnection.class);
-		getActivity().startService(IOIOIntent);
-
-		// Bind to the service
-		getActivity().bindService(
-				new Intent(getActivity(), IOIOConnection.class), mConnection,
-				Context.BIND_AUTO_CREATE);
-		
 		return view;
 	}
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-		mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		
-	}
+
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
@@ -117,6 +105,7 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
+		
 	}
 
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -153,41 +142,17 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 		}
 	}
 
+	
 	@Override
 	public void onResume() {
-		super.onResume();
-		mSensorManager.registerListener(this, mAccel,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		getActivity().startService(IOIOIntent);
-	}
+	    super.onResume();
+	    mSensorManager.registerListener(this, mAccel, SensorManager.SENSOR_DELAY_NORMAL);
+	  }
 
-	@Override
+	  @Override
 	public void onPause() {
-		super.onPause();
-		mSensorManager.unregisterListener(this);
-		getActivity().stopService(IOIOIntent);
-	}
+	    super.onPause();
+	    mSensorManager.unregisterListener(this);
+	  }
 
-	@Override
-	public void onStop() {
-		super.onStop();
-		// Unbind from the service
-		if (mBound) {
-			getActivity().unbindService(mConnection);
-			mBound = false;
-		}
-		getActivity().stopService(IOIOIntent);
-
-	}
-
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		// Unbind from the service
-		if (mBound) {
-			getActivity().unbindService(mConnection);
-			mBound = false;
-		}
-		getActivity().stopService(IOIOIntent);
-	}
 }

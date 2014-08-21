@@ -32,7 +32,7 @@ public class IOIOConnection extends IOIOService {
 	static final int TEMPERATURE_LEVEL = 3;
 	static final int MAGNETOMETER_LEVEL = 4;
 	static final int ACCELEROMETER_LEVEL = 5;
-	long _sensorValue = 0;
+	float _sensorValue = 0;
 
 	/**
 	 * Handler of incoming messages from clients.

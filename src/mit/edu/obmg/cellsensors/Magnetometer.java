@@ -21,14 +21,11 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class Magnetometer extends Fragment implements SensorEventListener{
-	final String TAG = "Magnetometer";
 
-	//Sensor
 	SensorManager mSensorManager;
 	Sensor mMagnet;
 	float _sensorValue;
 	
-	//UI
 	TextView mMagnetValue;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
@@ -43,6 +40,14 @@ public class Magnetometer extends Fragment implements SensorEventListener{
 
 	/** Flag indicating whether we have called bind on the service. */
 	boolean mBound;
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		
+		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+		mMagnet = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,18 +87,8 @@ public class Magnetometer extends Fragment implements SensorEventListener{
 		getActivity().bindService(
 				new Intent(getActivity(), IOIOConnection.class), mConnection,
 				Context.BIND_AUTO_CREATE);
-
 		
 		return view;
-	}
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-		mMagnet = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-		
 	}
 
 	@Override
@@ -107,6 +102,7 @@ public class Magnetometer extends Fragment implements SensorEventListener{
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
+		
 	}
 
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -145,39 +141,14 @@ public class Magnetometer extends Fragment implements SensorEventListener{
 
 	@Override
 	public void onResume() {
-		super.onResume();
-		mSensorManager.registerListener(this, mMagnet,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		getActivity().startService(IOIOIntent);
-	}
+	    super.onResume();
+	    mSensorManager.registerListener(this, mMagnet, SensorManager.SENSOR_DELAY_NORMAL);
+	  }
 
-	@Override
+	  @Override
 	public void onPause() {
-		super.onPause();
-		mSensorManager.unregisterListener(this);
-		getActivity().stopService(IOIOIntent);
-	}
+	    super.onPause();
+	    mSensorManager.unregisterListener(this);
+	  }
 
-	@Override
-	public void onStop() {
-		super.onStop();
-		// Unbind from the service
-		if (mBound) {
-			getActivity().unbindService(mConnection);
-			mBound = false;
-		}
-		getActivity().stopService(IOIOIntent);
-
-	}
-
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		// Unbind from the service
-		if (mBound) {
-			getActivity().unbindService(mConnection);
-			mBound = false;
-		}
-		getActivity().stopService(IOIOIntent);
-	}
 }

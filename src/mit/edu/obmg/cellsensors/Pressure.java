@@ -14,7 +14,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,13 +21,11 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class Pressure extends Fragment  implements SensorEventListener{
-	final String TAG = "Pressure";
 
 	SensorManager mSensorManager;
 	Sensor mPressure;
 	float _sensorValue;
 	
-	//UI
 	TextView mPressureValue;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 500;
@@ -37,12 +34,19 @@ public class Pressure extends Fragment  implements SensorEventListener{
 	//IOIOConnection
 	Intent IOIOIntent;
 	MapValues mapValue = new MapValues();
-	
-	/** Messenger for communicating with the service. */
+	// Messenger for communicating with the service. */
 	Messenger mService = null;
-
-	/** Flag indicating whether we have called bind on the service. */
+	// Flag indicating whether we have called bind on the service. */
 	boolean mBound;
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		
+		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+		mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+		
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,18 +85,8 @@ public class Pressure extends Fragment  implements SensorEventListener{
 		// Bind to the service
 		getActivity().bindService(
 				new Intent(getActivity(), IOIOConnection.class), mConnection,
-				Context.BIND_AUTO_CREATE);
-		
+				Context.BIND_AUTO_CREATE);		
 		return view;
-	}
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-		mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-		
 	}
 
 	@Override
@@ -101,7 +95,6 @@ public class Pressure extends Fragment  implements SensorEventListener{
 		_sensorValue = event.values[0];
 		mPressureValue.setText("Values: " + _sensorValue);
 		sendData(_sensorValue);
-		Log.i(TAG, "Pressure Value: "+_sensorValue);
 	}
 
 	@Override
@@ -136,49 +129,24 @@ public class Pressure extends Fragment  implements SensorEventListener{
 		
 		// Create and send a message to the service, using a supported 'what'
 		// value
-		Message msg = Message.obtain(null, IOIOConnection.PRESSURE_LEVEL, (int) _sensorValue, 0);
+		Message msg = Message.obtain(null, IOIOConnection.PRESSURE_LEVEL, (int) rate, 0);
 		try {
 			mService.send(msg);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onResume() {
-		super.onResume();
-		mSensorManager.registerListener(this, mPressure,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		getActivity().startService(IOIOIntent);
-	}
+	    super.onResume();
+	    mSensorManager.registerListener(this, mPressure, SensorManager.SENSOR_DELAY_NORMAL);
+	  }
 
-	@Override
+	  @Override
 	public void onPause() {
-		super.onPause();
-		mSensorManager.unregisterListener(this);
-		getActivity().stopService(IOIOIntent);
-	}
+	    super.onPause();
+	    mSensorManager.unregisterListener(this);
+	  }
 
-	@Override
-	public void onStop() {
-		super.onStop();
-		// Unbind from the service
-		if (mBound) {
-			getActivity().unbindService(mConnection);
-			mBound = false;
-		}
-		getActivity().stopService(IOIOIntent);
-
-	}
-
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		// Unbind from the service
-		if (mBound) {
-			getActivity().unbindService(mConnection);
-			mBound = false;
-		}
-		getActivity().stopService(IOIOIntent);
-	}
 }
