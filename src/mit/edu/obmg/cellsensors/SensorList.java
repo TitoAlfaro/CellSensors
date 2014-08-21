@@ -131,9 +131,9 @@ public class SensorList extends Fragment {
 		case 4:
 			newFragment = new Accelerometer();
 			break;
-		case 5:
-			newFragment = new AccessoryConsumer();
-			break;
+//		case 5:
+//			newFragment = new AccessoryConsumer();
+//			break;
 		}
 
 		FragmentTransaction transaction = fm.beginTransaction();

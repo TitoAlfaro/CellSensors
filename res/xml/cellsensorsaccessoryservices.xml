@@ -38,11 +38,10 @@
 	    serviceTimeout="10">
             <supportedTransports>
                 <transport type="TRANSPORT_BT" />
-				<transport type="TRANSPORT_WIFI"/> 
             </supportedTransports>
 
             <serviceChannel
-                id="123"
+                id="104"
                 dataRate="low"
                 priority="low"
                 reliability="enable" >

@@ -38,30 +38,12 @@
         </activity>
 
         <service android:name="mit.edu.obmg.cellsensors.IOIOConnection" />
-        <service android:name="mit.edu.obmg.cellsensors.consumer.service.CellSensorsAccessoryConsumerService" />
 
         <intent-filter>
             <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
         </intent-filter>
 
-        <!-- receiver -->
-        <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver" >
-            <intent-filter>
-                <action android:name="android.accessory.device.action.REGISTER_AFTER_INSTALL" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver" >
-            <intent-filter>
-                <action android:name="android.accessory.service.action.ACCESSORY_SERVICE_CONNECTION_IND" />
-            </intent-filter>
-        </receiver>
 
-        <meta-data
-            android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
-            android:resource="@xml/accessory_filter" />
-        <meta-data
-            android:name="AccessoryServicesLocation"
-            android:value="/res/xml/cellsensorsaccessoryservices.xml" />
     </application>
 
 </manifest>

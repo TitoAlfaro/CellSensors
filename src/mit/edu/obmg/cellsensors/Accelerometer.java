@@ -145,7 +145,7 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 		
 		// Create and send a message to the service, using a supported 'what'
 		// value
-		Message msg = Message.obtain(null, IOIOConnection.ACCELEROMETER_LEVEL, (int) _sensorValue, 0);
+		Message msg = Message.obtain(null, IOIOConnection.ACCELEROMETER_LEVEL, (int) rate, 0);
 		try {
 			mService.send(msg);
 		} catch (RemoteException e) {

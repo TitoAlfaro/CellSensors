@@ -5,7 +5,6 @@ import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
 
-import mit.edu.obmg.cellsensors.consumer.service.CellSensorsAccessoryConsumerService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -113,7 +112,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 				Context.BIND_AUTO_CREATE);
 
 		/**** GRAPH VIEW ****/
-		// init example series data
 		exampleSeries = new GraphViewSeries(new GraphViewData[] {
 		    new GraphViewData(0, 0)
 		});
@@ -225,7 +223,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
             public void run() {
                 graph2LastXValue += 1d;
                 exampleSeries.appendData(new GraphViewData(graph2LastXValue, _sensorValue), true, 10);
-                mHandler.postDelayed(this, 200);
+                mHandler.postDelayed(this, 2000);
             }
         };
         mHandler.postDelayed(mTimer2, 1000);
