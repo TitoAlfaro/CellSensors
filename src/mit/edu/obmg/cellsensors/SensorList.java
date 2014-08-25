@@ -73,7 +73,6 @@ public class SensorList extends Fragment {
             	newFragment(5);
             }
         });
-
 		
 		return view;
 	}

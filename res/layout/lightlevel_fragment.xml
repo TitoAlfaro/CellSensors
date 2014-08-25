@@ -4,24 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <RadioGroup
-        android:id="@+id/outChoice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-
-        <RadioButton
-            android:id="@+id/btnIOIO"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="IOIO" />
-
-        <RadioButton
-            android:id="@+id/btnGear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gear" />
-    </RadioGroup>
-
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"

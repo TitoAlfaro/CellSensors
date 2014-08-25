@@ -30,8 +30,6 @@ import android.webkit.WebView.FindListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 public class LightLevel extends Fragment implements SensorEventListener {
@@ -46,8 +44,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	TextView mLightValue;
 	Button choiceIOIO, choiceGear;
 	boolean choiceIOIOFlag;
-	private RadioGroup radioG;
-	private RadioButton btnIOIO, btnGear;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
 	int maxPicker = 500;
@@ -67,7 +63,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	boolean mBound;
 	
 	MapValues mapValue = new MapValues();
-	/**** ****/
+	/**** IOIOConnection ****/
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,9 +71,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		View view = inflater.inflate(R.layout.lightlevel_fragment, container,
 				false);
 		mLightValue = (TextView) view.findViewById(R.id.textLight);
-		radioG = (RadioGroup) view.findViewById(R.id.outChoice);
-		btnIOIO = (RadioButton) view.findViewById(R.id.btnIOIO);
-		btnGear = (RadioButton) view.findViewById(R.id.btnGear);
 
 		String[] sensorNums = new String[maxPicker+1];
 		for (int i = 0; i < sensorNums.length; i++) {
@@ -110,6 +103,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		getActivity().bindService(
 				new Intent(getActivity(), IOIOConnection.class), mIOIOConnection,
 				Context.BIND_AUTO_CREATE);
+		/**** IOIO ****/
 
 		/**** GRAPH VIEW ****/
 		exampleSeries = new GraphViewSeries(new GraphViewData[] {
@@ -141,22 +135,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		
 	}
 	
-	public void onRadioButtonClicked(View view) {
-	    // Is the button now checked?
-	    boolean checked = ((RadioButton) view).isChecked();
-	    
-	    // Check which radio button was clicked
-	    switch(view.getId()) {
-	        case R.id.btnIOIO:
-	            if (checked)
-	            	choiceIOIOFlag = true;
-	            break;
-	        case R.id.btnGear:
-	            if (checked)
-	            	choiceIOIOFlag = false;
-	            break;
-	    }
-	}
 
 	public void sendData(float v) {
 		if (!mBound)
@@ -164,7 +142,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		
 		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
 				maxValue.getValue(),
-				(float) 2000, (float) 5);
+				(float) 500, (float) 5);
 
 			// Create and send a message to the service, using a supported
 			// 'what' value
@@ -211,9 +189,9 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		// bindMethod();
 		mSensorManager.registerListener(this, mLight,
 				SensorManager.SENSOR_DELAY_NORMAL);
+		
 		getActivity().startService(IOIOIntent);
 		
 		/*** Graph ****/
@@ -232,7 +210,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		// unBindMethod();
 		mSensorManager.unregisterListener(this);
 		getActivity().stopService(IOIOIntent);
         mHandler.removeCallbacks(mTimer2);

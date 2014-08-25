@@ -1,5 +1,10 @@
 package mit.edu.obmg.cellsensors;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GraphViewSeries;
+import com.jjoe64.graphview.LineGraphView;
+import com.jjoe64.graphview.GraphView.GraphViewData;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +14,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -17,35 +23,47 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
-public class Pressure extends Fragment  implements SensorEventListener{
+public class Pressure extends Fragment implements SensorEventListener {
 
 	SensorManager mSensorManager;
 	Sensor mPressure;
 	float _sensorValue;
-	
+
 	TextView mPressureValue;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 500;
 	int maxPicker = 2000;
 
-	//IOIOConnection
+	// Graph
+	private final Handler mHandler = new Handler();
+	private Runnable mTimer2;
+	private GraphView graphView;
+	private double graph2LastXValue = 5d;
+	GraphViewSeries exampleSeries;
+
+	/**** IOIOConnection ****/
 	Intent IOIOIntent;
-	MapValues mapValue = new MapValues();
 	// Messenger for communicating with the service. */
 	Messenger mService = null;
 	// Flag indicating whether we have called bind on the service. */
 	boolean mBound;
-	
+
+	MapValues mapValue = new MapValues();
+
+	/**** IOIOConnection ****/
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+
+		mSensorManager = (SensorManager) getActivity().getSystemService(
+				Context.SENSOR_SERVICE);
 		mPressure = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-		
+
 	}
 
 	@Override
@@ -56,7 +74,7 @@ public class Pressure extends Fragment  implements SensorEventListener{
 
 		mPressureValue = (TextView) view.findViewById(R.id.textPressure);
 
-		String[] sensorNums = new String[maxPicker+1];
+		String[] sensorNums = new String[maxPicker + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
 			sensorNums[i] = Integer.toString(i);
 		}
@@ -67,8 +85,7 @@ public class Pressure extends Fragment  implements SensorEventListener{
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
 		minValue.setValue(minPicker);
-		minValue
-				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		minValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
 		maxValue.setMinValue(minPicker);
@@ -76,16 +93,33 @@ public class Pressure extends Fragment  implements SensorEventListener{
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
 		maxValue.setValue(maxPicker);
-		maxValue
-				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		
+		maxValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+
+		/**** IOIO ****/
 		IOIOIntent = new Intent(getActivity(), IOIOConnection.class);
-		getActivity().startService(IOIOIntent);
+		// getActivity().startService(IOIOIntent);
 
 		// Bind to the service
 		getActivity().bindService(
-				new Intent(getActivity(), IOIOConnection.class), mConnection,
-				Context.BIND_AUTO_CREATE);		
+				new Intent(getActivity(), IOIOConnection.class),
+				mIOIOConnection, Context.BIND_AUTO_CREATE);
+		/**** IOIO ****/
+
+		/**** GRAPH VIEW ****/
+		exampleSeries = new GraphViewSeries(
+				new GraphViewData[] { new GraphViewData(0, 0) });
+
+		graphView = new LineGraphView(getActivity() // context
+				, "GraphViewDemo" // heading
+		);
+		graphView.addSeries(exampleSeries); // data
+		graphView.setViewPort(1, 8);
+		graphView.setScalable(true);
+
+		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
+		layout.addView(graphView);
+		/**** GRAPH VIEW ****/
+
 		return view;
 	}
 
@@ -100,10 +134,10 @@ public class Pressure extends Fragment  implements SensorEventListener{
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	private ServiceConnection mConnection = new ServiceConnection() {
+	private ServiceConnection mIOIOConnection = new ServiceConnection() {
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -124,29 +158,68 @@ public class Pressure extends Fragment  implements SensorEventListener{
 			return;
 
 		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
-				maxValue.getValue(),
-				(float) 2000, (float) 5);
-		
+				maxValue.getValue(), (float) 2000, (float) 5);
+
 		// Create and send a message to the service, using a supported 'what'
 		// value
-		Message msg = Message.obtain(null, IOIOConnection.PRESSURE_LEVEL, (int) rate, 0);
+		Message msg = Message.obtain(null, IOIOConnection.PRESSURE_LEVEL,
+				(int) rate, 0);
 		try {
 			mService.send(msg);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onResume() {
-	    super.onResume();
-	    mSensorManager.registerListener(this, mPressure, SensorManager.SENSOR_DELAY_NORMAL);
-	  }
-
-	  @Override
+		super.onResume();
+		mSensorManager.registerListener(this, mPressure,
+				SensorManager.SENSOR_DELAY_NORMAL);
+		
+		getActivity().startService(IOIOIntent);
+		
+		/*** Graph ****/
+		mTimer2 = new Runnable() {
+            @Override
+            public void run() {
+                graph2LastXValue += 1d;
+                exampleSeries.appendData(new GraphViewData(graph2LastXValue, _sensorValue), true, 10);
+                mHandler.postDelayed(this, 2000);
+            }
+        };
+        mHandler.postDelayed(mTimer2, 1000);
+		/*** Graph ****/
+	}
+	
+	@Override
 	public void onPause() {
-	    super.onPause();
-	    mSensorManager.unregisterListener(this);
-	  }
+		super.onPause();
+		mSensorManager.unregisterListener(this);
+		getActivity().stopService(IOIOIntent);
+        mHandler.removeCallbacks(mTimer2);
+	}
 
+	@Override
+	public void onStop() {
+		super.onStop();
+		// Unbind from the service
+		if (mBound) {
+			getActivity().unbindService(mIOIOConnection);
+			mBound = false;
+		}
+		getActivity().stopService(IOIOIntent);
+
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		// Unbind from the service
+		if (mBound) {
+			getActivity().unbindService(mIOIOConnection);
+			mBound = false;
+		}
+		getActivity().stopService(IOIOIntent);
+	}
 }

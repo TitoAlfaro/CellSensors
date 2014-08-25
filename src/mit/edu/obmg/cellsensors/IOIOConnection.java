@@ -18,13 +18,12 @@ public class IOIOConnection extends IOIOService {
 	final String TAG = "IOIOConnection";
 
 	// MultiThreading
-	private Thread Vibration1;
-	Thread thread1 = new Thread(Vibration1);
+//	private Thread Vibration1;
+//	Thread thread1 = new Thread(Vibration1);
 
 	// Vibration
 	float rate1 = 1000;
 	int vibPin = 40;
-	DigitalOutput out;
 
 	/** Command to the service to display a message */
 	static final int LIGHT_LEVEL = 1;
@@ -32,7 +31,7 @@ public class IOIOConnection extends IOIOService {
 	static final int TEMPERATURE_LEVEL = 3;
 	static final int MAGNETOMETER_LEVEL = 4;
 	static final int ACCELEROMETER_LEVEL = 5;
-	float _sensorValue = 0;
+	float _incomingValue = 0;
 
 	/**
 	 * Handler of incoming messages from clients.
@@ -44,27 +43,27 @@ public class IOIOConnection extends IOIOService {
 			case LIGHT_LEVEL:
 				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
 				// Toast.LENGTH_SHORT).show();
-				_sensorValue = msg.arg1;
+				_incomingValue = msg.arg1;
 				break;
 			case PRESSURE_LEVEL:
 				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
 				// Toast.LENGTH_SHORT).show();
-				_sensorValue = msg.arg1;
+				_incomingValue = msg.arg1;
 				break;
 			case TEMPERATURE_LEVEL:
 				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
 				// Toast.LENGTH_SHORT).show();
-				_sensorValue = msg.arg1;
+				_incomingValue = msg.arg1;
 				break;
 			case MAGNETOMETER_LEVEL:
 				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
 				// Toast.LENGTH_SHORT).show();
-				_sensorValue = msg.arg1;
+				_incomingValue = msg.arg1;
 				break;
 			case ACCELEROMETER_LEVEL:
 				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
 				// Toast.LENGTH_SHORT).show();
-				_sensorValue = msg.arg1;
+				_incomingValue = msg.arg1;
 				break;
 			default:
 				super.handleMessage(msg);
@@ -90,10 +89,12 @@ public class IOIOConnection extends IOIOService {
 
 	class Looper extends BaseIOIOLooper {
 		private Vibration vibThread;
+//		private DigitalOutput led_;
 
 		@Override
 		protected void setup() throws ConnectionLostException,
 				InterruptedException {
+//			led_ = ioio_.openDigitalOutput(0, true);
 
 			vibThread = new Vibration(ioio_);
 			vibThread.start();
@@ -101,7 +102,10 @@ public class IOIOConnection extends IOIOService {
 
 		@Override
 		public void loop() throws ConnectionLostException, InterruptedException {
-			Thread.sleep(100);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
 		}
 
 		@Override
@@ -128,20 +132,18 @@ public class IOIOConnection extends IOIOService {
 		return new Looper();
 	}
 
-	@Override
-	public void onStart(Intent intent, int startId) {
-		super.onStart(intent, startId);
-	}
+//	@Override
+//	public void onStart(Intent intent, int startId) {
+//		super.onStart(intent, startId);
+//	}
 
 	class Vibration extends Thread {
 		private final String TAG = "IOIOConnectionVibThread";
 
 		private IOIO ioio_;
 		private boolean run_ = true;
-		int vibPin_;
-		int threadNum_;
-		float inTemp_;
 		private DigitalOutput led_;
+		DigitalOutput out;
 
 		public Vibration(IOIO ioio) throws InterruptedException {
 			ioio_ = ioio;
@@ -150,25 +152,31 @@ public class IOIOConnection extends IOIOService {
 		@Override
 		public void run() {
 			Log.d(TAG, "Thread [" + getName() + "] is running.");
+			try {
+				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
+				out = ioio_.openDigitalOutput(vibPin);
+			} catch (ConnectionLostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 			while (run_) {
 				try {
-					led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
-					out = ioio_.openDigitalOutput(vibPin, true);
 					while (true) {
 
 						out.write(true);
-						led_.write(false);
-						sleep((long) 100);
-						out.write(false);
 						led_.write(true);
-						sleep((long) _sensorValue);
-						Log.d(TAG, "Sensor Value " + _sensorValue);
+						Thread.sleep((long) 100);
+						out.write(false);
+						led_.write(false);
+						Thread.sleep((long) _incomingValue);
+						Log.d(TAG, "Sensor Value " + _incomingValue);
 
 					}
 				} catch (ConnectionLostException e) {
+					Log.e(TAG, "ConnectionLostException", e);
 				} catch (Exception e) {
-					Log.e(TAG, "Unexpected exception caught in VibThread", e);
+					Log.e(TAG, "Unexpected exception", e);
 					ioio_.disconnect();
 					break;
 				} finally {
