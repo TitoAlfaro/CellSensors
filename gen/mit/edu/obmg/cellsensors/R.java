@@ -1092,12 +1092,11 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f060016;
         public static final int action_menu_presenter=0x7f060017;
         public static final int action_mode_close_button=0x7f060024;
-        public static final int action_settings=0x7f060051;
+        public static final int action_settings=0x7f060050;
         public static final int activity_chooser_view_content=0x7f060025;
         public static final int always=0x7f06000b;
         public static final int beginning=0x7f060011;
         public static final int btnAccel=0x7f06004d;
-        public static final int btnAccessory=0x7f06004e;
         public static final int btnLight=0x7f06004a;
         public static final int btnMagnet=0x7f06004b;
         public static final int btnPress=0x7f06004c;
@@ -1113,7 +1112,7 @@ containing a value of this type.
         public static final int end=0x7f060013;
         public static final int expand_activities_button=0x7f060026;
         public static final int expanded_menu=0x7f06002c;
-        public static final int fragmentPlaceHolder=0x7f06004f;
+        public static final int fragmentPlaceHolder=0x7f06004e;
         public static final int home=0x7f060014;
         public static final int homeAsUp=0x7f060005;
         public static final int icon=0x7f06002a;
@@ -1155,7 +1154,7 @@ containing a value of this type.
         public static final int textLight=0x7f060044;
         public static final int textMagnet=0x7f060045;
         public static final int textPressure=0x7f060046;
-        public static final int textTemp=0x7f060050;
+        public static final int textTemp=0x7f06004f;
         public static final int textView1=0x7f06003c;
         public static final int title=0x7f06002b;
         public static final int top_action_bar=0x7f060020;

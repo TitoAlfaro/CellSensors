@@ -28,7 +28,7 @@ public class SensorList extends Fragment {
 	List<String> listSensorType = new ArrayList<String>();
 
 	// UI
-	Button tempButton, lightButton, pressButton, magnetButton, accelButton, accessoryButton;
+	Button tempButton, lightButton, pressButton, magnetButton, accelButton;
 	int buttonId;
 
 	@Override
@@ -65,12 +65,6 @@ public class SensorList extends Fragment {
 		accelButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	newFragment(4);
-            }
-        });
-		accessoryButton = (Button) view.findViewById(R.id.btnAccessory);
-		accessoryButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	newFragment(5);
             }
         });
 		

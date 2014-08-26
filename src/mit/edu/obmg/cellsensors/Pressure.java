@@ -4,6 +4,7 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphViewStyle.GridStyle;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,6 +38,8 @@ public class Pressure extends Fragment implements SensorEventListener {
 	private NumberPicker minValue, maxValue;
 	int minPicker = 500;
 	int maxPicker = 2000;
+	int currentMinPicker = minPicker + 1000;
+	int currentMaxPicker = maxPicker - 480;
 
 	// Graph
 	private final Handler mHandler = new Handler();
@@ -72,6 +75,11 @@ public class Pressure extends Fragment implements SensorEventListener {
 		View view = inflater.inflate(R.layout.pressure_fragment, container,
 				false);
 
+		if (savedInstanceState != null) {
+			currentMinPicker = savedInstanceState.getInt("currentMinPicker");
+			currentMaxPicker = savedInstanceState.getInt("currentMaxPicker");
+		}
+
 		mPressureValue = (TextView) view.findViewById(R.id.textPressure);
 
 		String[] sensorNums = new String[maxPicker + 1];
@@ -84,7 +92,7 @@ public class Pressure extends Fragment implements SensorEventListener {
 		minValue.setMaxValue(maxPicker);
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
-		minValue.setValue(minPicker);
+		minValue.setValue(currentMinPicker);
 		minValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
@@ -92,7 +100,7 @@ public class Pressure extends Fragment implements SensorEventListener {
 		maxValue.setMaxValue(maxPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
-		maxValue.setValue(maxPicker);
+		maxValue.setValue(currentMaxPicker);
 		maxValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		/**** IOIO ****/
@@ -115,6 +123,11 @@ public class Pressure extends Fragment implements SensorEventListener {
 		graphView.addSeries(exampleSeries); // data
 		graphView.setViewPort(1, 8);
 		graphView.setScalable(true);
+		graphView.setScrollable(true);
+		graphView.getGraphViewStyle().setGridStyle(GridStyle.VERTICAL);
+		graphView.setShowHorizontalLabels(false);
+		graphView.setManualYAxisBounds(maxValue.getValue() - 500,
+				minValue.getValue() - 500);
 
 		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
 		layout.addView(graphView);
@@ -157,8 +170,9 @@ public class Pressure extends Fragment implements SensorEventListener {
 		if (!mBound)
 			return;
 
-		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
-				maxValue.getValue(), (float) 2000, (float) 5);
+		final float rate = mapValue.map(_sensorValue,
+				minValue.getValue() - 500, maxValue.getValue() - 500,
+				(float) 2000, (float) 5);
 
 		// Create and send a message to the service, using a supported 'what'
 		// value
@@ -176,28 +190,40 @@ public class Pressure extends Fragment implements SensorEventListener {
 		super.onResume();
 		mSensorManager.registerListener(this, mPressure,
 				SensorManager.SENSOR_DELAY_NORMAL);
-		
+
 		getActivity().startService(IOIOIntent);
-		
+
 		/*** Graph ****/
 		mTimer2 = new Runnable() {
-            @Override
-            public void run() {
-                graph2LastXValue += 1d;
-                exampleSeries.appendData(new GraphViewData(graph2LastXValue, _sensorValue), true, 10);
-                mHandler.postDelayed(this, 2000);
-            }
-        };
-        mHandler.postDelayed(mTimer2, 1000);
+			@Override
+			public void run() {
+				graph2LastXValue += 1d;
+				exampleSeries.appendData(new GraphViewData(graph2LastXValue,
+						_sensorValue), true, 10);
+				mHandler.postDelayed(this, 500);
+				graphView.setManualYAxisBounds(maxValue.getValue() - 500,
+						minValue.getValue() - 500);
+			}
+		};
+		mHandler.postDelayed(mTimer2, 1000);
 		/*** Graph ****/
+
 	}
-	
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putInt("currentMaxPicker", maxValue.getValue());
+		outState.putInt("currentMinPicker", minValue.getValue());
+	}
+
 	@Override
 	public void onPause() {
 		super.onPause();
 		mSensorManager.unregisterListener(this);
 		getActivity().stopService(IOIOIntent);
-        mHandler.removeCallbacks(mTimer2);
+		mHandler.removeCallbacks(mTimer2);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package mit.edu.obmg.cellsensors;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphViewStyle.GridStyle;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
 
@@ -47,6 +48,8 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
 	int maxPicker = 500;
+	int currentMinPicker = minPicker;
+	int currentMaxPicker = maxPicker;
 	
 	//Graph
     private final Handler mHandler = new Handler();
@@ -70,6 +73,12 @@ public class LightLevel extends Fragment implements SensorEventListener {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.lightlevel_fragment, container,
 				false);
+
+		if (savedInstanceState != null) {
+			currentMinPicker = savedInstanceState.getInt("currentMinPicker");
+			currentMaxPicker = savedInstanceState.getInt("currentMaxPicker");
+		}
+		
 		mLightValue = (TextView) view.findViewById(R.id.textLight);
 
 		String[] sensorNums = new String[maxPicker+1];
@@ -91,7 +100,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		maxValue.setMaxValue(maxPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
-		maxValue.setValue(maxPicker);
+		maxValue.setValue(100);
 		maxValue
 				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 		
@@ -117,6 +126,10 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		graphView.addSeries(exampleSeries); // data
         graphView.setViewPort(1, 8);
         graphView.setScalable(true);
+		graphView.setScrollable(true);
+		graphView.getGraphViewStyle().setGridStyle(GridStyle.VERTICAL);
+		graphView.setShowHorizontalLabels(false);
+		graphView.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
 		 
 		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
 		layout.addView(graphView);
@@ -200,11 +213,20 @@ public class LightLevel extends Fragment implements SensorEventListener {
             public void run() {
                 graph2LastXValue += 1d;
                 exampleSeries.appendData(new GraphViewData(graph2LastXValue, _sensorValue), true, 10);
-                mHandler.postDelayed(this, 2000);
+                mHandler.postDelayed(this, 500);
+        		graphView.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
             }
         };
         mHandler.postDelayed(mTimer2, 1000);
 		/*** Graph ****/
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		outState.putInt("currentMaxPicker"	, maxValue.getValue());
+		outState.putInt("currentMinPicker"	, minValue.getValue());
 	}
 	
 	@Override
