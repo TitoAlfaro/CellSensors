@@ -29,6 +29,11 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class Pressure extends Fragment implements SensorEventListener {
+	final String TAG = "Pressure Fragment";
+
+	// Fragment
+	Bundle fragmentFlag;
+	Boolean testFlag = false;
 
 	SensorManager mSensorManager;
 	Sensor mPressure;
@@ -79,6 +84,8 @@ public class Pressure extends Fragment implements SensorEventListener {
 			currentMinPicker = savedInstanceState.getInt("currentMinPicker");
 			currentMaxPicker = savedInstanceState.getInt("currentMaxPicker");
 		}
+
+		testFlag = getTestFlag();
 
 		mPressureValue = (TextView) view.findViewById(R.id.textPressure);
 
@@ -135,12 +142,18 @@ public class Pressure extends Fragment implements SensorEventListener {
 
 		return view;
 	}
+	
+	public boolean getTestFlag(){
+		return getArguments().getBoolean("testFlag");
+	}
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
 		_sensorValue = event.values[0];
-		mPressureValue.setText("Values: " + _sensorValue);
+		if (testFlag == false) {
+			mPressureValue.setText("Values: " + _sensorValue);
+		}
 		sendData(_sensorValue);
 	}
 
@@ -198,8 +211,14 @@ public class Pressure extends Fragment implements SensorEventListener {
 			@Override
 			public void run() {
 				graph2LastXValue += 1d;
-				exampleSeries.appendData(new GraphViewData(graph2LastXValue,
-						_sensorValue), true, 10);
+				if (testFlag == false) {
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, _sensorValue), true, 10);
+				}else{
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, 0), true, 10);
+					
+				}
 				mHandler.postDelayed(this, 500);
 				graphView.setManualYAxisBounds(maxValue.getValue() - 500,
 						minValue.getValue() - 500);

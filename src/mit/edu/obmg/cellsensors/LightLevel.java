@@ -36,6 +36,10 @@ import android.widget.TextView;
 public class LightLevel extends Fragment implements SensorEventListener {
 	final String TAG = "LightLevel";
 
+	// Fragment
+	Bundle fragmentFlag;
+	Boolean testFlag = false;
+
 	// Sensor
 	SensorManager mSensorManager;
 	Sensor mLight;
@@ -43,8 +47,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 
 	// UI
 	TextView mLightValue;
-	Button choiceIOIO, choiceGear;
-	boolean choiceIOIOFlag;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
 	int maxPicker = 500;
@@ -78,6 +80,8 @@ public class LightLevel extends Fragment implements SensorEventListener {
 			currentMinPicker = savedInstanceState.getInt("currentMinPicker");
 			currentMaxPicker = savedInstanceState.getInt("currentMaxPicker");
 		}
+
+		testFlag = getTestFlag();
 		
 		mLightValue = (TextView) view.findViewById(R.id.textLight);
 
@@ -91,18 +95,16 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		minValue.setMaxValue(maxPicker);
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
-		minValue.setValue(minPicker);
-		minValue
-				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		minValue.setValue(currentMinPicker);
+		minValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
 		maxValue.setMinValue(minPicker);
 		maxValue.setMaxValue(maxPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
-		maxValue.setValue(100);
-		maxValue
-				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		maxValue.setValue(currentMaxPicker);
+		maxValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 		
 		/**** IOIO ****/
 		IOIOIntent = new Intent(getActivity(), IOIOConnection.class);
@@ -136,6 +138,10 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		/**** GRAPH VIEW ****/
 
 		return view;
+	}
+	
+	public boolean getTestFlag(){
+		return getArguments().getBoolean("testFlag");
 	}
 
 	@Override
@@ -173,7 +179,9 @@ public class LightLevel extends Fragment implements SensorEventListener {
 	public void onSensorChanged(SensorEvent event) {
 
 		_sensorValue = event.values[0];
-		mLightValue.setText("Values: " + _sensorValue);
+		if (testFlag == false) {
+			mLightValue.setText("Values: " + _sensorValue);
+		}
 		sendData(_sensorValue);
 	}
 
@@ -212,7 +220,14 @@ public class LightLevel extends Fragment implements SensorEventListener {
             @Override
             public void run() {
                 graph2LastXValue += 1d;
-                exampleSeries.appendData(new GraphViewData(graph2LastXValue, _sensorValue), true, 10);
+				if (testFlag == false) {
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, _sensorValue), true, 10);
+				}else{
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, 0), true, 10);
+					
+				}
                 mHandler.postDelayed(this, 500);
         		graphView.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
             }

@@ -29,6 +29,11 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class Magnetometer extends Fragment implements SensorEventListener {
+	final String TAG = "Magnetometer Fragment";
+
+	// Fragment
+	Bundle fragmentFlag;
+	Boolean testFlag = false;
 
 	SensorManager mSensorManager;
 	Sensor mMagnet;
@@ -36,8 +41,8 @@ public class Magnetometer extends Fragment implements SensorEventListener {
 
 	TextView mMagnetValue;
 	private NumberPicker minValue, maxValue;
-	int minPicker = 0;
-	int maxPicker = 500;
+	int minPicker = -30;
+	int maxPicker = 30;
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
 
@@ -80,27 +85,33 @@ public class Magnetometer extends Fragment implements SensorEventListener {
 			currentMaxPicker = savedInstanceState.getInt("currentMaxPicker");
 		}
 
+		testFlag = getTestFlag();
+
 		mMagnetValue = (TextView) view.findViewById(R.id.textMagnet);
 
-		String[] sensorNums = new String[maxPicker + 1];
+		String[] sensorNums = new String[(maxPicker*2) + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
-			sensorNums[i] = Integer.toString(i);
+			if(i<maxPicker){
+				sensorNums[i] = "-"+Integer.toString(maxPicker - i);
+			}else{
+				sensorNums[i] = Integer.toString(i-maxPicker);
+			}
 		}
 
 		minValue = (NumberPicker) view.findViewById(R.id.minValue);
-		minValue.setMinValue(minPicker);
-		minValue.setMaxValue(maxPicker);
+		minValue.setMinValue(0);
+		minValue.setMaxValue(maxPicker - minPicker);
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
-		minValue.setValue(minPicker);
+		minValue.setValue(currentMinPicker);
 		minValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
-		maxValue.setMinValue(minPicker);
-		maxValue.setMaxValue(maxPicker);
+		maxValue.setMinValue(0);
+		maxValue.setMaxValue(maxPicker - minPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
-		maxValue.setValue(maxPicker);
+		maxValue.setValue(currentMaxPicker);
 		maxValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		/**** IOIO ****/
@@ -135,12 +146,18 @@ public class Magnetometer extends Fragment implements SensorEventListener {
 
 		return view;
 	}
+	
+	public boolean getTestFlag(){
+		return getArguments().getBoolean("testFlag");
+	}
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
 		_sensorValue = event.values[0];
-		mMagnetValue.setText("Values: " + _sensorValue);
+		if (testFlag == false) {
+			mMagnetValue.setText("Values: " + _sensorValue);
+		}
 		sendData(_sensorValue);
 	}
 
@@ -197,11 +214,17 @@ public class Magnetometer extends Fragment implements SensorEventListener {
 			@Override
 			public void run() {
 				graph2LastXValue += 1d;
-				exampleSeries.appendData(new GraphViewData(graph2LastXValue,
-						_sensorValue), true, 10);
+				if (testFlag == false) {
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, _sensorValue), true, 10);
+				}else{
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, 0), true, 10);
+					
+				}
 				mHandler.postDelayed(this, 500);
-				graphView.setManualYAxisBounds(maxValue.getValue(),
-						minValue.getValue());
+				graphView.setManualYAxisBounds(maxValue.getValue()+minPicker,
+						minValue.getValue()+minPicker);
 			}
 		};
 		mHandler.postDelayed(mTimer2, 1000);

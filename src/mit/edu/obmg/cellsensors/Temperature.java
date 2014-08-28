@@ -29,6 +29,11 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class Temperature extends Fragment implements SensorEventListener {
+	final String TAG = "Temperature Fragment";
+
+	// Fragment
+	Bundle fragmentFlag;
+	Boolean testFlag = false;
 
 	SensorManager mSensorManager;
 	Sensor mTemp;
@@ -38,8 +43,8 @@ public class Temperature extends Fragment implements SensorEventListener {
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
 	int maxPicker = 100;
-	int currentMinPicker = minPicker;
-	int currentMaxPicker = maxPicker;
+	int currentMinPicker = 20;
+	int currentMaxPicker = 50;
 
 	// Graph
 	private final Handler mHandler = new Handler();
@@ -81,6 +86,8 @@ public class Temperature extends Fragment implements SensorEventListener {
 			currentMaxPicker = savedInstanceState.getInt("currentMaxPicker");
 		}
 
+		testFlag = getTestFlag();
+		
 		mTempValue = (TextView) view.findViewById(R.id.textTemp);
 
 		String[] sensorNums = new String[maxPicker + 1];
@@ -93,7 +100,7 @@ public class Temperature extends Fragment implements SensorEventListener {
 		minValue.setMaxValue(maxPicker);
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
-		minValue.setValue(15);
+		minValue.setValue(currentMinPicker);
 		minValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
@@ -101,7 +108,7 @@ public class Temperature extends Fragment implements SensorEventListener {
 		maxValue.setMaxValue(maxPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
-		maxValue.setValue(30);
+		maxValue.setValue(currentMaxPicker);
 		maxValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		/**** IOIO ****/
@@ -127,7 +134,8 @@ public class Temperature extends Fragment implements SensorEventListener {
 		graphView.setScrollable(true);
 		graphView.getGraphViewStyle().setGridStyle(GridStyle.VERTICAL);
 		graphView.setShowHorizontalLabels(false);
-		graphView.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
+		graphView
+				.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
 
 		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
 		layout.addView(graphView);
@@ -135,12 +143,18 @@ public class Temperature extends Fragment implements SensorEventListener {
 
 		return view;
 	}
+	
+	public boolean getTestFlag(){
+		return getArguments().getBoolean("testFlag");
+	}
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
 		_sensorValue = event.values[0];
-		mTempValue.setText("Values: " + _sensorValue);
+		if (testFlag == false) {
+			mTempValue.setText("Values: " + _sensorValue);
+		}
 		sendData(_sensorValue);
 	}
 
@@ -187,39 +201,48 @@ public class Temperature extends Fragment implements SensorEventListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
 		mSensorManager.registerListener(this, mTemp,
 				SensorManager.SENSOR_DELAY_NORMAL);
-		
+
 		getActivity().startService(IOIOIntent);
-		
+
 		/*** Graph ****/
 		mTimer2 = new Runnable() {
-            @Override
-            public void run() {
-                graph2LastXValue += 1d;
-                exampleSeries.appendData(new GraphViewData(graph2LastXValue, _sensorValue), true, 10);
-                mHandler.postDelayed(this, 500);
-        		graphView.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
-            }
-        };
-        mHandler.postDelayed(mTimer2, 1000);
+			@Override
+			public void run() {
+				graph2LastXValue += 1d;
+				if (testFlag == false) {
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, _sensorValue), true, 10);
+				}else{
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, 0), true, 10);
+					
+				}
+				mHandler.postDelayed(this, 500);
+				graphView.setManualYAxisBounds(maxValue.getValue(),
+						minValue.getValue());
+			}
+		};
+		mHandler.postDelayed(mTimer2, 1000);
 		/*** Graph ****/
 	}
-	
+
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		
-		outState.putInt("currentMaxPicker"	, maxValue.getValue());
-		outState.putInt("currentMinPicker"	, minValue.getValue());
+
+		outState.putInt("currentMaxPicker", maxValue.getValue());
+		outState.putInt("currentMinPicker", minValue.getValue());
 	}
-	
+
 	@Override
 	public void onPause() {
 		super.onPause();
 		mSensorManager.unregisterListener(this);
 		getActivity().stopService(IOIOIntent);
-        mHandler.removeCallbacks(mTimer2);
+		mHandler.removeCallbacks(mTimer2);
 	}
 
 	@Override

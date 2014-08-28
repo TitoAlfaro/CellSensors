@@ -10,6 +10,12 @@
         android:layout_height="match_parent"
         android:orientation="vertical" >
 
+        <ToggleButton
+            android:id="@+id/btnTest"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:visibility="visible" />
+
         <Button
             android:id="@+id/btnTemp"
             android:layout_width="100dp"
@@ -44,6 +50,27 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:text="Accel" />
+        
+        <Button
+            android:id="@+id/btnProx"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="Proximity" />
+        
+        <Button
+            android:id="@+id/btnHumid"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="Humidity" />
+        
+        <Button
+            android:id="@+id/btnSound"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="Sound" />
 
        
     </LinearLayout>

@@ -29,16 +29,21 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class Accelerometer extends Fragment implements SensorEventListener {
+	final String TAG = "Accelerometer Fragment";
+
+	// Fragment
+	Bundle fragmentFlag;
+	Boolean testFlag = false;
 
 	SensorManager mSensorManager;
 	Sensor mAccel;
 	float _sensorValue;
 
 	// UI
-	TextView mAccelValueX, mAccelValueY, mAccelValueZ;
+	TextView mAccelValueX, mAccelValueY, mAccelValueZ, mAccelValueAll;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
-	int maxPicker = 500;
+	int maxPicker = 20;
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
 
@@ -81,9 +86,12 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 			currentMaxPicker = savedInstanceState.getInt("currentMaxPicker");
 		}
 
+		testFlag = getTestFlag();
+
 		mAccelValueX = (TextView) view.findViewById(R.id.textAccelX);
 		mAccelValueY = (TextView) view.findViewById(R.id.textAccelY);
 		mAccelValueZ = (TextView) view.findViewById(R.id.textAccelZ);
+		mAccelValueAll = (TextView) view.findViewById(R.id.textAccelAll);
 
 		String[] sensorNums = new String[maxPicker + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
@@ -95,7 +103,7 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 		minValue.setMaxValue(maxPicker);
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
-		minValue.setValue(minPicker);
+		minValue.setValue(currentMinPicker);
 		minValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
@@ -103,7 +111,7 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 		maxValue.setMaxValue(maxPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
-		maxValue.setValue(maxPicker);
+		maxValue.setValue(currentMaxPicker);
 		maxValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		/**** IOIO ****/
@@ -137,16 +145,24 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 
 		return view;
 	}
+	
+	public boolean getTestFlag(){
+		return getArguments().getBoolean("testFlag");
+	}
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		_sensorValue = event.values[0];
+		float _rawValueX = event.values[0];
 		float _rawValueY = event.values[1];
 		float _rawValueZ = event.values[2];
-		mAccelValueX.setText("Values X: " + _sensorValue);
-		mAccelValueY.setText("Values Y: " + _rawValueY);
-		mAccelValueZ.setText("Values Z: " + _rawValueZ);
+		_sensorValue = (_rawValueX + _rawValueY + _rawValueZ)/3;
+		if (testFlag == false) {
+			mAccelValueX.setText("Values X: " + _rawValueX);
+			mAccelValueY.setText("Values Y: " + _rawValueY);
+			mAccelValueZ.setText("Values Z: " + _rawValueZ);
+			mAccelValueAll.setText("Values Avg: " + _sensorValue);
+		}
 		sendData(_sensorValue);
 	}
 
@@ -203,7 +219,14 @@ public class Accelerometer extends Fragment implements SensorEventListener {
             @Override
             public void run() {
                 graph2LastXValue += 1d;
-                exampleSeries.appendData(new GraphViewData(graph2LastXValue, _sensorValue), true, 10);
+				if (testFlag == false) {
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, _sensorValue), true, 10);
+				}else{
+					exampleSeries.appendData(new GraphViewData(
+							graph2LastXValue, 0), true, 10);
+					
+				}
                 mHandler.postDelayed(this, 2000);
             }
         };
