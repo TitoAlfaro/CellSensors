@@ -1,5 +1,7 @@
 package mit.edu.obmg.cellsensors;
 
+import java.util.concurrent.TimeUnit;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +10,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -21,12 +27,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GraphViewSeries;
-import com.jjoe64.graphview.LineGraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.GraphViewStyle.GridStyle;
+import com.jjoe64.graphview.LineGraphView;
 
 public class Humidity extends Fragment implements SensorEventListener {
 	final String TAG = "Humidity";
@@ -41,10 +48,12 @@ public class Humidity extends Fragment implements SensorEventListener {
 	float _sensorValue;
 
 	// UI
+	TextView fragmentTitle, timer;
 	TextView mHumidityValue;
+	ToggleButton timerStartStop;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
-	int maxPicker = 10;
+	int maxPicker = 100;
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
 
@@ -79,7 +88,13 @@ public class Humidity extends Fragment implements SensorEventListener {
 
 		testFlag = getTestFlag();
 
+		fragmentTitle = (TextView) view.findViewById(R.id.textView1);
+		fragmentTitle.setText("User Study");
 		mHumidityValue = (TextView) view.findViewById(R.id.textHumid);
+
+		LinearLayout layoutTimer = (LinearLayout) view.findViewById(R.id.layoutTimer);
+		timer = (TextView) view.findViewById(R.id.timer);
+		timerStartStop= (ToggleButton) view.findViewById(R.id.btnTimer)
 
 		String[] sensorNums = new String[maxPicker + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
@@ -129,13 +144,44 @@ public class Humidity extends Fragment implements SensorEventListener {
 				.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
 
 		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
+		
+		if (testFlag == false) {
+			layout.setVisibility(View.VISIBLE);
+			timer.setVisibility(View.GONE);
+		}
+		
 		layout.addView(graphView);
 		/**** GRAPH VIEW ****/
 
+		if (testFlag == true) {
+			layout.setVisibility(View.GONE);
+			timer.setVisibility(View.VISIBLE);
+			new CountDownTimer(600000, 1000) {
+
+				public void onTick(long millisUntilFinished) {
+					timer.setText(""+ String.format("%d:%d",
+							TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
+							TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - 
+							TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
+				}
+
+				public void onFinish() {
+					timer.setText("Please Return to E15-445");
+					try {
+					    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+					    Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
+					    r.play();
+					} catch (Exception e) {
+					    e.printStackTrace();
+					}
+				}
+			}.start();
+		}
+
 		return view;
 	}
-	
-	public boolean getTestFlag(){
+
+	public boolean getTestFlag() {
 		return getArguments().getBoolean("testFlag");
 	}
 
@@ -145,7 +191,8 @@ public class Humidity extends Fragment implements SensorEventListener {
 
 		mSensorManager = (SensorManager) getActivity().getSystemService(
 				Context.SENSOR_SERVICE);
-		mHumidity = mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+		mHumidity = mSensorManager
+				.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
 	}
 
 	public void sendData(float v) {
@@ -172,6 +219,7 @@ public class Humidity extends Fragment implements SensorEventListener {
 
 		_sensorValue = event.values[0];
 		if (testFlag == false) {
+			fragmentTitle.setText("Humidity");
 			mHumidityValue.setText("Values: " + _sensorValue);
 		}
 		sendData(_sensorValue);
@@ -216,10 +264,10 @@ public class Humidity extends Fragment implements SensorEventListener {
 				if (testFlag == false) {
 					exampleSeries.appendData(new GraphViewData(
 							graph2LastXValue, _sensorValue), true, 10);
-				}else{
+				} else {
 					exampleSeries.appendData(new GraphViewData(
 							graph2LastXValue, 0), true, 10);
-					
+
 				}
 				mHandler.postDelayed(this, 500);
 				graphView.setManualYAxisBounds(maxValue.getValue(),

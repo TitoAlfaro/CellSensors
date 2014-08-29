@@ -54,10 +54,30 @@ public class SensorList extends Fragment {
 						if (isChecked) {
 							testFlag = true;
 							fragmentFlag.putBoolean("testFlag", true);
+
+							tempButton.setVisibility(View.INVISIBLE);
+							pressButton.setVisibility(View.INVISIBLE);					
+							lightButton.setVisibility(View.INVISIBLE);
+							magnetButton.setVisibility(View.INVISIBLE);
+							accelButton.setVisibility(View.INVISIBLE);
+							proximityButton.setVisibility(View.INVISIBLE);
+							humidityButton.setVisibility(View.INVISIBLE);
+							soundButton.setVisibility(View.INVISIBLE);
+							
 							newFragment(fragNum);
 						} else {
 							testFlag = false;
 							fragmentFlag.putBoolean("testFlag", false);
+							
+							tempButton.setVisibility(View.VISIBLE);
+							pressButton.setVisibility(View.VISIBLE);					
+							lightButton.setVisibility(View.VISIBLE);
+							magnetButton.setVisibility(View.VISIBLE);
+							accelButton.setVisibility(View.VISIBLE);
+							proximityButton.setVisibility(View.VISIBLE);
+							humidityButton.setVisibility(View.VISIBLE);
+							soundButton.setVisibility(View.VISIBLE);
+							
 							newFragment(fragNum);
 						}
 					}
@@ -195,7 +215,7 @@ public class SensorList extends Fragment {
 		}
 
 		newFragment.setArguments(fragmentFlag);
-
+		
 		FragmentTransaction transaction = fm.beginTransaction();
 		transaction.replace(R.id.fragmentPlaceHolder, newFragment);
 		// transaction.addToBackStack(null);

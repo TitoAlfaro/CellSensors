@@ -32,6 +32,7 @@ public class IOIOConnection extends IOIOService {
 	static final int MAGNETOMETER_LEVEL = 4;
 	static final int ACCELEROMETER_LEVEL = 5;
 	static final int HUMIDITY_LEVEL = 6;
+	static final int SOUND_LEVEL = 7;
 	float _incomingValue = 0;
 
 	/**
@@ -67,6 +68,11 @@ public class IOIOConnection extends IOIOService {
 				_incomingValue = msg.arg1;
 				break;
 			case HUMIDITY_LEVEL:
+				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
+				// Toast.LENGTH_SHORT).show();
+				_incomingValue = msg.arg1;
+				break;
+			case SOUND_LEVEL:
 				// Toast.makeText(getApplicationContext(), "Value: "+msg.arg1,
 				// Toast.LENGTH_SHORT).show();
 				_incomingValue = msg.arg1;

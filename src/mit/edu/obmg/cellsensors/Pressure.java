@@ -1,5 +1,7 @@
 package mit.edu.obmg.cellsensors;
 
+import java.util.concurrent.TimeUnit;
+
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
@@ -14,7 +16,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -39,6 +45,8 @@ public class Pressure extends Fragment implements SensorEventListener {
 	Sensor mPressure;
 	float _sensorValue;
 
+	//UI
+	TextView fragmentTitle, timer;
 	TextView mPressureValue;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 500;
@@ -86,8 +94,11 @@ public class Pressure extends Fragment implements SensorEventListener {
 		}
 
 		testFlag = getTestFlag();
-
+		
+		fragmentTitle = (TextView) view.findViewById(R.id.textView1);
+		fragmentTitle.setText("User Study");
 		mPressureValue = (TextView) view.findViewById(R.id.textPressure);
+		timer = (TextView) view.findViewById(R.id.timer);
 
 		String[] sensorNums = new String[maxPicker + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
@@ -137,8 +148,39 @@ public class Pressure extends Fragment implements SensorEventListener {
 				minValue.getValue() - 500);
 
 		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
+		
+		if (testFlag == false) {
+			layout.setVisibility(View.VISIBLE);
+			timer.setVisibility(View.GONE);
+		}
+		
 		layout.addView(graphView);
 		/**** GRAPH VIEW ****/
+
+		if (testFlag == true) {
+			layout.setVisibility(View.GONE);
+			timer.setVisibility(View.VISIBLE);
+			new CountDownTimer(600000, 1000) {
+
+				public void onTick(long millisUntilFinished) {
+					timer.setText(""+ String.format("%d:%d",
+							TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
+							TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - 
+							TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
+				}
+
+				public void onFinish() {
+					timer.setText("Please Return to E15-445");
+					try {
+					    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+					    Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
+					    r.play();
+					} catch (Exception e) {
+					    e.printStackTrace();
+					}
+				}
+			}.start();
+		}
 
 		return view;
 	}
@@ -152,6 +194,7 @@ public class Pressure extends Fragment implements SensorEventListener {
 
 		_sensorValue = event.values[0];
 		if (testFlag == false) {
+			fragmentTitle.setText("Pressure");
 			mPressureValue.setText("Values: " + _sensorValue);
 		}
 		sendData(_sensorValue);
