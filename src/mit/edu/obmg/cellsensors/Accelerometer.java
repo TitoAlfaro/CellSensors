@@ -30,9 +30,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class Accelerometer extends Fragment implements SensorEventListener {
 	final String TAG = "Accelerometer Fragment";
@@ -48,11 +50,33 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 	// UI
 	TextView fragmentTitle, timer;
 	TextView mAccelValueX, mAccelValueY, mAccelValueZ, mAccelValueAll;
+	ToggleButton timerStartStop;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
 	int maxPicker = 20;
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
+
+	CountDownTimer clockTimer = new CountDownTimer(600000, 1000) {
+
+		public void onTick(long millisUntilFinished) {
+			timer.setText(""+ String.format("%d:%d",
+					TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
+					TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - 
+					TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
+		}
+
+		public void onFinish() {
+			timer.setText("Please Return to E15-445");
+			try {
+			    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			    Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
+			    r.play();
+			} catch (Exception e) {
+			    e.printStackTrace();
+			}
+		}
+	};
 
 	// Graph
 	private final Handler mHandler = new Handler();
@@ -101,7 +125,19 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 		mAccelValueY = (TextView) view.findViewById(R.id.textAccelY);
 		mAccelValueZ = (TextView) view.findViewById(R.id.textAccelZ);
 		mAccelValueAll = (TextView) view.findViewById(R.id.textAccelAll);
-		timer = (TextView) view.findViewById(R.id.timer);
+
+		LinearLayout layoutTimer = (LinearLayout) view.findViewById(R.id.layoutTimer);
+		timer = (TextView) view.findViewById(R.id.textTimer);
+		timerStartStop = (ToggleButton) view.findViewById(R.id.btnTimer);
+		timerStartStop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+		    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		        if (isChecked) {
+		        	clockTimer.start();
+		        } else {
+		        	clockTimer.cancel();
+		        }
+		    }
+		});
 
 		String[] sensorNums = new String[maxPicker + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
@@ -149,40 +185,21 @@ public class Accelerometer extends Fragment implements SensorEventListener {
 		graphView.setShowHorizontalLabels(false);
 		graphView.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
 
-		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
+		LinearLayout graphLayout = (LinearLayout) view.findViewById(R.id.Graph);
 		
 		if (testFlag == false) {
-			layout.setVisibility(View.VISIBLE);
+			graphLayout.setVisibility(View.VISIBLE);
 			timer.setVisibility(View.GONE);
 		}
 		
-		layout.addView(graphView);
+		graphLayout.addView(graphView);
 		/**** GRAPH VIEW ****/
 
 		if (testFlag == true) {
-			layout.setVisibility(View.GONE);
+			graphLayout.setVisibility(View.GONE);
+			layoutTimer.setVisibility(View.VISIBLE);
 			timer.setVisibility(View.VISIBLE);
-			new CountDownTimer(600000, 1000) {
-
-				public void onTick(long millisUntilFinished) {
-					timer.setText(""+ String.format("%d:%d",
-							TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
-							TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - 
-							TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
-				}
-
-				public void onFinish() {
-					timer.setText("Please Return to E15-445");
-					try {
-					    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-					    Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
-					    r.play();
-					} catch (Exception e) {
-					    e.printStackTrace();
-					}
-				}
-			}.start();
-		}
+		}			
 
 		return view;
 	}

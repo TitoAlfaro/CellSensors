@@ -55,28 +55,21 @@ public class SensorList extends Fragment {
 							testFlag = true;
 							fragmentFlag.putBoolean("testFlag", true);
 
-							tempButton.setVisibility(View.INVISIBLE);
-							pressButton.setVisibility(View.INVISIBLE);					
-							lightButton.setVisibility(View.INVISIBLE);
-							magnetButton.setVisibility(View.INVISIBLE);
-							accelButton.setVisibility(View.INVISIBLE);
-							proximityButton.setVisibility(View.INVISIBLE);
-							humidityButton.setVisibility(View.INVISIBLE);
-							soundButton.setVisibility(View.INVISIBLE);
+							tempButton.setVisibility(View.GONE);
+							pressButton.setVisibility(View.GONE);					
+							lightButton.setVisibility(View.GONE);
+							magnetButton.setVisibility(View.GONE);
+							accelButton.setVisibility(View.GONE);
+							proximityButton.setVisibility(View.GONE);
+							humidityButton.setVisibility(View.GONE);
+							soundButton.setVisibility(View.GONE);
 							
 							newFragment(fragNum);
 						} else {
 							testFlag = false;
 							fragmentFlag.putBoolean("testFlag", false);
-							
-							tempButton.setVisibility(View.VISIBLE);
-							pressButton.setVisibility(View.VISIBLE);					
-							lightButton.setVisibility(View.VISIBLE);
-							magnetButton.setVisibility(View.VISIBLE);
-							accelButton.setVisibility(View.VISIBLE);
-							proximityButton.setVisibility(View.VISIBLE);
-							humidityButton.setVisibility(View.VISIBLE);
-							soundButton.setVisibility(View.VISIBLE);
+
+							checkSensors();
 							
 							newFragment(fragNum);
 						}
@@ -150,6 +143,21 @@ public class SensorList extends Fragment {
 
 		sensorManager = (SensorManager) getActivity().getSystemService(
 				Context.SENSOR_SERVICE);
+		
+		checkSensors();
+
+		sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
+
+		List<String> listSensorType = new ArrayList<String>();
+
+		for (int i = 0; i < sensorList.size(); i++) {
+			listSensorType.add(sensorList.get(i).getName());
+			Log.i(TAG, " Sensor: " + sensorList.get(i).getName());
+		}
+
+	}
+
+	private void checkSensors() {
 
 		if (sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null) {
 			tempButton.setVisibility(View.VISIBLE);
@@ -171,17 +179,7 @@ public class SensorList extends Fragment {
 		}
 		if (sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null) {
 			humidityButton.setVisibility(View.VISIBLE);
-		}
-
-		sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
-
-		List<String> listSensorType = new ArrayList<String>();
-
-		for (int i = 0; i < sensorList.size(); i++) {
-			listSensorType.add(sensorList.get(i).getName());
-			Log.i(TAG, " Sensor: " + sensorList.get(i).getName());
-		}
-
+		}		
 	}
 
 	public void newFragment(int buttonId) {

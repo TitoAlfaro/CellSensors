@@ -30,9 +30,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class Temperature extends Fragment implements SensorEventListener {
 	final String TAG = "Temperature Fragment";
@@ -48,11 +50,33 @@ public class Temperature extends Fragment implements SensorEventListener {
 	//UI
 	TextView fragmentTitle, timer;
 	TextView mTempValue;
+	ToggleButton timerStartStop;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
 	int maxPicker = 100;
 	int currentMinPicker = 20;
 	int currentMaxPicker = 50;
+
+	CountDownTimer clockTimer = new CountDownTimer(600000, 1000) {
+
+		public void onTick(long millisUntilFinished) {
+			timer.setText(""+ String.format("%d:%d",
+					TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
+					TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - 
+					TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
+		}
+
+		public void onFinish() {
+			timer.setText("Please Return to E15-445");
+			try {
+			    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			    Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
+			    r.play();
+			} catch (Exception e) {
+			    e.printStackTrace();
+			}
+		}
+	};
 
 	// Graph
 	private final Handler mHandler = new Handler();
@@ -73,17 +97,6 @@ public class Temperature extends Fragment implements SensorEventListener {
 	/**** IOIOConnection ****/
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		mSensorManager = (SensorManager) getActivity().getSystemService(
-				Context.SENSOR_SERVICE);
-		mTemp = mSensorManager
-				.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.temperature_fragment, container,
@@ -99,7 +112,19 @@ public class Temperature extends Fragment implements SensorEventListener {
 		fragmentTitle = (TextView) view.findViewById(R.id.textView1);
 		fragmentTitle.setText("User Study");
 		mTempValue = (TextView) view.findViewById(R.id.textTemp);
-		timer = (TextView) view.findViewById(R.id.timer);
+
+		LinearLayout layoutTimer = (LinearLayout) view.findViewById(R.id.layoutTimer);
+		timer = (TextView) view.findViewById(R.id.textTimer);
+		timerStartStop = (ToggleButton) view.findViewById(R.id.btnTimer);
+		timerStartStop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+		    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		        if (isChecked) {
+		        	clockTimer.start();
+		        } else {
+		        	clockTimer.cancel();
+		        }
+		    }
+		});
 
 		String[] sensorNums = new String[maxPicker + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
@@ -148,46 +173,57 @@ public class Temperature extends Fragment implements SensorEventListener {
 		graphView
 				.setManualYAxisBounds(maxValue.getValue(), minValue.getValue());
 
-		LinearLayout layout = (LinearLayout) view.findViewById(R.id.Graph);
+		LinearLayout graphLayout = (LinearLayout) view.findViewById(R.id.Graph);
 		
 		if (testFlag == false) {
-			layout.setVisibility(View.VISIBLE);
+			graphLayout.setVisibility(View.VISIBLE);
 			timer.setVisibility(View.GONE);
 		}
 		
-		layout.addView(graphView);
+		graphLayout.addView(graphView);
 		/**** GRAPH VIEW ****/
 
 		if (testFlag == true) {
-			layout.setVisibility(View.GONE);
+			graphLayout.setVisibility(View.GONE);
+			layoutTimer.setVisibility(View.VISIBLE);
 			timer.setVisibility(View.VISIBLE);
-			new CountDownTimer(600000, 1000) {
-
-				public void onTick(long millisUntilFinished) {
-					timer.setText(""+ String.format("%d:%d",
-							TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
-							TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - 
-							TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
-				}
-
-				public void onFinish() {
-					timer.setText("Please Return to E15-445");
-					try {
-					    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-					    Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
-					    r.play();
-					} catch (Exception e) {
-					    e.printStackTrace();
-					}
-				}
-			}.start();
-		}
+		}			
 
 		return view;
 	}
 	
 	public boolean getTestFlag(){
 		return getArguments().getBoolean("testFlag");
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		mSensorManager = (SensorManager) getActivity().getSystemService(
+				Context.SENSOR_SERVICE);
+		mTemp = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+		
+	}
+
+	public void sendData(float v) {
+		if (!mBound)
+			return;
+		
+		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
+				maxValue.getValue(),
+				(float) 500, (float) 5);
+
+			// Create and send a message to the service, using a supported
+			// 'what' value
+			Message msg = Message.obtain(null, IOIOConnection.TEMPERATURE_LEVEL,
+					(int) rate, 0);
+			try {
+				mService.send(msg);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+
 	}
 
 	@Override
@@ -222,24 +258,6 @@ public class Temperature extends Fragment implements SensorEventListener {
 
 		}
 	};
-
-	public void sendData(float v) {
-		if (!mBound)
-			return;
-
-		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
-				maxValue.getValue(), (float) 2000, (float) 5);
-
-		// Create and send a message to the service, using a supported 'what'
-		// value
-		Message msg = Message.obtain(null, IOIOConnection.TEMPERATURE_LEVEL,
-				(int) rate, 0);
-		try {
-			mService.send(msg);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
 
 	@Override
 	public void onResume() {
