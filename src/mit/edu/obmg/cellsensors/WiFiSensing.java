@@ -1,18 +1,24 @@
 package mit.edu.obmg.cellsensors;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -26,38 +32,42 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GraphViewSeries;
-import com.jjoe64.graphview.LineGraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.GraphViewStyle.GridStyle;
+import com.jjoe64.graphview.LineGraphView;
 
-public class Proximity extends Fragment implements SensorEventListener {
-	final String TAG = "Proximity";
+public class WiFiSensing extends Fragment {
+	final String TAG = "WiFi Sensing";
 
 	// Fragment
 	Bundle fragmentFlag;
 	Boolean testFlag = false;
 
-	// Sensor
-	SensorManager mSensorManager;
-	Sensor mProximity;
-	float _sensorValue;
-
+	WifiManager mainWifiObj;
+	WifiScanReceiver wifiReceiver;
+	ListView list;
+	String[] wifis;
+	int[] levels;
+	int	_sensorValue;
+	
 	// UI
 	TextView fragmentTitle, timer;
-	TextView mProximityValue;
+	TextView mWiFiValue;
 	ToggleButton timerStartStop;
 	private NumberPicker minValue, maxValue;
-	int minPicker = 0;
-	int maxPicker = 10;
+	int minPicker = -100;
+	int maxPicker = 100;
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
 
+	/****    TIMER    ****/
 	CountDownTimer clockTimer = new CountDownTimer(600000, 1000) {
 
 		public void onTick(long millisUntilFinished) {
@@ -78,6 +88,7 @@ public class Proximity extends Fragment implements SensorEventListener {
 			}
 		}
 	};
+	/****    TIMER    ****/
 
 	// Graph
 	private final Handler mHandler = new Handler();
@@ -100,7 +111,7 @@ public class Proximity extends Fragment implements SensorEventListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.proximity_fragment, container,
+		View view = inflater.inflate(R.layout.wifi_fragment, container,
 				false);
 
 		if (savedInstanceState != null) {
@@ -112,7 +123,11 @@ public class Proximity extends Fragment implements SensorEventListener {
 		
 		fragmentTitle = (TextView) view.findViewById(R.id.textView1);
 		fragmentTitle.setText("User Study");
-		mProximityValue = (TextView) view.findViewById(R.id.textProximity);
+		mWiFiValue = (TextView) view.findViewById(R.id.textWifi);
+        mainWifiObj = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+        wifiReceiver = new WifiScanReceiver();
+        
+        mainWifiObj.startScan();
 
 		LinearLayout layoutTimer = (LinearLayout) view.findViewById(R.id.layoutTimer);
 		timer = (TextView) view.findViewById(R.id.textTimer);
@@ -126,23 +141,27 @@ public class Proximity extends Fragment implements SensorEventListener {
 		        }
 		    }
 		});
-		
-		String[] sensorNums = new String[maxPicker + 1];
+
+		String[] sensorNums = new String[(maxPicker*2) + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
-			sensorNums[i] = Integer.toString(i);
+			if(i<maxPicker){
+				sensorNums[i] = "-"+Integer.toString(maxPicker - i);
+			}else{
+				sensorNums[i] = Integer.toString(i-maxPicker);
+			}
 		}
 
 		minValue = (NumberPicker) view.findViewById(R.id.minValue);
-		minValue.setMinValue(minPicker);
-		minValue.setMaxValue(maxPicker);
+		minValue.setMinValue(0);
+		minValue.setMaxValue(maxPicker - minPicker);
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
 		minValue.setValue(currentMinPicker);
 		minValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
-		maxValue.setMinValue(minPicker);
-		maxValue.setMaxValue(maxPicker);
+		maxValue.setMinValue(0);
+		maxValue.setMaxValue(maxPicker - minPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
 		maxValue.setValue(currentMaxPicker);
@@ -196,16 +215,37 @@ public class Proximity extends Fragment implements SensorEventListener {
 	public boolean getTestFlag(){
 		return getArguments().getBoolean("testFlag");
 	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		mSensorManager = (SensorManager) getActivity().getSystemService(
-				Context.SENSOR_SERVICE);
-		mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-	}
-
+    
+    public void StartScaning(){
+    	while(true){
+    		
+    	}
+    }
+    
+    class WifiScanReceiver extends BroadcastReceiver{
+    	@SuppressLint ("UseValueOf")
+    	public void onReceive(Context c, Intent intent){ 
+    		
+    		List<ScanResult> wifiScanList = mainWifiObj.getScanResults();
+    		wifis = new String [wifiScanList.size()];
+    		levels = new int [wifiScanList.size()];
+    		for(int i = 0; i<wifiScanList.size(); i++){
+    			wifis[i] = ((wifiScanList.get(i)).toString());
+    			levels[i]= (wifiScanList.get(i).level);
+    		}
+    		
+    		Arrays.sort(levels);
+    		_sensorValue = levels[0];if (testFlag == false) {
+    			fragmentTitle.setText("WiFi Sensing");
+        		mWiFiValue.setText("Strongest Level: " + levels[0]);
+    		}
+    		
+            mainWifiObj.startScan();
+            
+            sendData(_sensorValue);
+    	}
+    }
+    
 	public void sendData(float v) {
 		if (!mBound)
 			return;
@@ -215,31 +255,13 @@ public class Proximity extends Fragment implements SensorEventListener {
 
 		// Create and send a message to the service, using a supported
 		// 'what' value
-		Message msg = Message.obtain(null, IOIOConnection.PROXIMITY_LEVEL,
+		Message msg = Message.obtain(null, IOIOConnection.WIFI_LEVEL,
 				(int) rate, 0);
 		try {
 			mService.send(msg);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-
-	}
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-
-		_sensorValue = event.values[0];
-		if (testFlag == false) {
-			fragmentTitle.setText("Proximity");
-			mProximityValue.setText("Values: " + _sensorValue);
-		}
-		sendData(_sensorValue);
-
-	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -262,8 +284,8 @@ public class Proximity extends Fragment implements SensorEventListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		mSensorManager.registerListener(this, mProximity,
-				SensorManager.SENSOR_DELAY_NORMAL);
+    	getActivity().registerReceiver(wifiReceiver, new IntentFilter(
+    			WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
 		getActivity().startService(IOIOIntent);
 
@@ -281,8 +303,8 @@ public class Proximity extends Fragment implements SensorEventListener {
 					
 				}
 				mHandler.postDelayed(this, 500);
-				graphView.setManualYAxisBounds(maxValue.getValue(),
-						minValue.getValue());
+				graphView.setManualYAxisBounds(maxValue.getValue()+minPicker,
+						minValue.getValue()+minPicker);
 			}
 		};
 		mHandler.postDelayed(mTimer2, 1000);
@@ -300,7 +322,7 @@ public class Proximity extends Fragment implements SensorEventListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		mSensorManager.unregisterListener(this);
+    	getActivity().unregisterReceiver(wifiReceiver);
 		getActivity().stopService(IOIOIntent);
 		mHandler.removeCallbacks(mTimer2);
 	}

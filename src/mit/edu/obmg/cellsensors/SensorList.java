@@ -28,7 +28,7 @@ public class SensorList extends Fragment {
 
 	// UI
 	Button tempButton, lightButton, pressButton, magnetButton, accelButton,
-			proximityButton, humidityButton, soundButton;
+			proximityButton, humidityButton, soundButton, wifiButton;
 	ToggleButton testButton;
 	int buttonId;
 	// boolean testFlag = false;
@@ -63,6 +63,7 @@ public class SensorList extends Fragment {
 							proximityButton.setVisibility(View.GONE);
 							humidityButton.setVisibility(View.GONE);
 							soundButton.setVisibility(View.GONE);
+							wifiButton.setVisibility(View.GONE);
 							
 							newFragment(fragNum);
 						} else {
@@ -133,6 +134,13 @@ public class SensorList extends Fragment {
 				newFragment(fragNum);
 			}
 		});
+		wifiButton = (Button) view.findViewById(R.id.btnWifi);
+		wifiButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				fragNum = 8;
+				newFragment(fragNum);
+			}
+		});
 
 		return view;
 	}
@@ -179,7 +187,9 @@ public class SensorList extends Fragment {
 		}
 		if (sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null) {
 			humidityButton.setVisibility(View.VISIBLE);
-		}		
+		}
+		wifiButton.setVisibility(View.VISIBLE);	
+		soundButton.setVisibility(View.VISIBLE);	
 	}
 
 	public void newFragment(int buttonId) {
@@ -209,6 +219,9 @@ public class SensorList extends Fragment {
 			break;
 		case 7:
 			newFragment = new SoundLevel();
+			break;
+		case 8:
+			newFragment = new WiFiSensing();
 			break;
 		}
 

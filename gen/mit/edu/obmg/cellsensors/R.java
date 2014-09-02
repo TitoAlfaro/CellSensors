@@ -1092,7 +1092,7 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f060016;
         public static final int action_menu_presenter=0x7f060017;
         public static final int action_mode_close_button=0x7f060024;
-        public static final int action_settings=0x7f06005c;
+        public static final int action_settings=0x7f06005e;
         public static final int activity_chooser_view_content=0x7f060025;
         public static final int always=0x7f06000b;
         public static final int beginning=0x7f060011;
@@ -1106,6 +1106,7 @@ containing a value of this type.
         public static final int btnTemp=0x7f060051;
         public static final int btnTest=0x7f060050;
         public static final int btnTimer=0x7f060047;
+        public static final int btnWifi=0x7f06005a;
         public static final int checkbox=0x7f06002d;
         public static final int collapseActionView=0x7f06000d;
         public static final int container=0x7f060048;
@@ -1163,10 +1164,11 @@ containing a value of this type.
         public static final int textMagnet=0x7f06004b;
         public static final int textPressure=0x7f06004c;
         public static final int textProximity=0x7f06004d;
-        public static final int textSound=0x7f06005a;
-        public static final int textTemp=0x7f06005b;
+        public static final int textSound=0x7f06005b;
+        public static final int textTemp=0x7f06005c;
         public static final int textTimer=0x7f060046;
         public static final int textView1=0x7f06003c;
+        public static final int textWifi=0x7f06005d;
         public static final int timer=0x7f060044;
         public static final int title=0x7f06002b;
         public static final int top_action_bar=0x7f060020;
@@ -1235,6 +1237,7 @@ containing a value of this type.
         public static final int sound_fragment=0x7f030020;
         public static final int support_simple_spinner_dropdown_item=0x7f030021;
         public static final int temperature_fragment=0x7f030022;
+        public static final int wifi_fragment=0x7f030023;
     }
     public static final class menu {
         public static final int cell_sensors_main=0x7f0d0000;

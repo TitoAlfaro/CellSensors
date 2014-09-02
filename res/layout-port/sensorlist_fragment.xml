@@ -72,6 +72,13 @@
             android:layout_height="wrap_content"
             android:visibility="visible"
             android:text="Sound" />
+        
+        <Button
+            android:id="@+id/btnWifi"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="WiFi" />
 
        
     </LinearLayout>
