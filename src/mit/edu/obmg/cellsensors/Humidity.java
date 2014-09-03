@@ -2,6 +2,7 @@ package mit.edu.obmg.cellsensors;
 
 import java.util.concurrent.TimeUnit;
 
+import mit.edu.obmg.cellsensors.RangeSeekBar.OnRangeSeekBarChangeListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +60,7 @@ public class Humidity extends Fragment implements SensorEventListener {
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
 
-	CountDownTimer clockTimer = new CountDownTimer(600000, 1000) {
+	CountDownTimer clockTimer = new CountDownTimer(900000, 1000) {
 
 		public void onTick(long millisUntilFinished) {
 			timer.setText(""+ String.format("%d:%d",
@@ -139,7 +141,6 @@ public class Humidity extends Fragment implements SensorEventListener {
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
 		minValue.setValue(currentMinPicker);
-		minValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
 		maxValue.setMinValue(minPicker);
@@ -147,7 +148,6 @@ public class Humidity extends Fragment implements SensorEventListener {
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
 		maxValue.setValue(currentMaxPicker);
-		maxValue.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		/**** IOIO ****/
 		IOIOIntent = new Intent(getActivity(), IOIOConnection.class);
@@ -190,6 +190,29 @@ public class Humidity extends Fragment implements SensorEventListener {
 			layoutTimer.setVisibility(View.VISIBLE);
 			timer.setVisibility(View.VISIBLE);
 		}			
+
+		/****  RANGE BAR  ****/
+		// create RangeSeekBar as Integer range between 20 and 75
+		RangeSeekBar<Integer> seekBar = new RangeSeekBar<Integer>(minValue.getValue(), maxValue.getValue(),
+				getActivity());
+		seekBar.setOnRangeSeekBarChangeListener(new OnRangeSeekBarChangeListener<Integer>() {
+			@Override
+			public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar,
+					Integer minRangeValue, Integer maxRangeValue) {
+				// handle changed range values
+
+				minValue.setValue(minRangeValue);
+				maxValue.setValue(maxRangeValue);
+				
+				Log.i(TAG, "User selected new range values: MIN=" + minValue
+						+ ", MAX=" + maxValue);
+			}
+		});
+
+		// add RangeSeekBar to pre-defined layout
+		ViewGroup layout = (ViewGroup) view.findViewById(R.id.rangeBar);
+		layout.addView(seekBar);
+		/****  RANGE BAR  ****/
 
 		return view;
 	}
