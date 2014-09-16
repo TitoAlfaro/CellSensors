@@ -17,10 +17,6 @@ import android.widget.Toast;
 public class IOIOConnection extends IOIOService {
 	final String TAG = "IOIOConnection";
 
-	// MultiThreading
-//	private Thread Vibration1;
-//	Thread thread1 = new Thread(Vibration1);
-
 	// Vibration
 	float rate1 = 1000;
 	int vibPin = 40;

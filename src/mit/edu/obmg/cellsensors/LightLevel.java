@@ -155,7 +155,6 @@ public class LightLevel extends Fragment implements SensorEventListener {
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
 		minValue.setValue(currentMinPicker);
-		minValue.scrollBy(100, 100);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
 		maxValue.setMinValue(minPicker);
@@ -246,12 +245,12 @@ public class LightLevel extends Fragment implements SensorEventListener {
 
 	}
 
-	public void sendData(float v) {
+	public void sendData() {
 		if (!mBound)
 			return;
 
 		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
-				maxValue.getValue(), (float) 500, (float) 5);
+				maxValue.getValue(), (float) 1000, (float) 5);
 
 		// Create and send a message to the service, using a supported
 		// 'what' value
@@ -273,7 +272,7 @@ public class LightLevel extends Fragment implements SensorEventListener {
 			fragmentTitle.setText("Light Levels");
 			mLightValue.setText("Values: " + _sensorValue);
 		}
-		sendData(_sensorValue);
+		sendData();
 	}
 
 	@Override

@@ -56,7 +56,7 @@ public class Proximity extends Fragment implements SensorEventListener {
 	ToggleButton timerStartStop;
 	private NumberPicker minValue, maxValue;
 	int minPicker = 0;
-	int maxPicker = 10;
+	int maxPicker = 100;
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
 
@@ -234,7 +234,7 @@ public class Proximity extends Fragment implements SensorEventListener {
 			return;
 
 		final float rate = mapValue.map(_sensorValue, maxValue.getValue(),
-				minValue.getValue(), (float) 500, (float) 5);
+				minValue.getValue(), (float) 1000, (float) 5);
 
 		// Create and send a message to the service, using a supported
 		// 'what' value
@@ -251,7 +251,7 @@ public class Proximity extends Fragment implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		_sensorValue = event.values[0];
+		_sensorValue = Math.abs(event.values[0]);
 		if (testFlag == false) {
 			fragmentTitle.setText("Proximity");
 			mProximityValue.setText("Values: " + _sensorValue);
@@ -262,7 +262,7 @@ public class Proximity extends Fragment implements SensorEventListener {
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
+		sendData(_sensorValue);
 
 	}
 

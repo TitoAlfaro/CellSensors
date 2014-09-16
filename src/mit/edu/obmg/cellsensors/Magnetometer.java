@@ -55,8 +55,8 @@ public class Magnetometer extends Fragment implements SensorEventListener {
 	TextView mMagnetValue;
 	ToggleButton timerStartStop;
 	private NumberPicker minValue, maxValue;
-	int minPicker = -30;
-	int maxPicker = 30;
+	int minPicker = 0;
+	int maxPicker = 1000;
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
 
@@ -138,26 +138,22 @@ public class Magnetometer extends Fragment implements SensorEventListener {
 		        }
 		    }
 		});
-
-		String[] sensorNums = new String[(maxPicker*2) + 1];
+		
+		String[] sensorNums = new String[maxPicker + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
-			if(i<maxPicker){
-				sensorNums[i] = "-"+Integer.toString(maxPicker - i);
-			}else{
-				sensorNums[i] = Integer.toString(i-maxPicker);
-			}
+			sensorNums[i] = Integer.toString(i);
 		}
 
 		minValue = (NumberPicker) view.findViewById(R.id.minValue);
-		minValue.setMinValue(0);
-		minValue.setMaxValue(maxPicker - minPicker);
+		minValue.setMinValue(minPicker);
+		minValue.setMaxValue(maxPicker);
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
 		minValue.setValue(currentMinPicker);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
-		maxValue.setMinValue(0);
-		maxValue.setMaxValue(maxPicker - minPicker);
+		maxValue.setMinValue(minPicker);
+		maxValue.setMaxValue(maxPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
 		maxValue.setValue(currentMaxPicker);
@@ -237,7 +233,7 @@ public class Magnetometer extends Fragment implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		_sensorValue = event.values[0];
+		_sensorValue = Math.abs(event.values[0]);
 		if (testFlag == false) {
 			fragmentTitle.setText("Magnetometer");
 			mMagnetValue.setText("Values: " + _sensorValue);
@@ -271,8 +267,8 @@ public class Magnetometer extends Fragment implements SensorEventListener {
 		if (!mBound)
 			return;
 
-		final float rate = mapValue.map(_sensorValue, minValue.getValue(),
-				maxValue.getValue(), (float) 2000, (float) 5);
+		final float rate = mapValue.map(Math.abs(_sensorValue), minValue.getValue(),
+				maxValue.getValue(), (float) 1000, (float) 5);
 
 		// Create and send a message to the service, using a supported 'what'
 		// value

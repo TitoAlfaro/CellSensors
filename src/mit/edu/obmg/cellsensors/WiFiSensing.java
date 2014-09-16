@@ -64,7 +64,7 @@ public class WiFiSensing extends Fragment {
 	TextView mWiFiValue;
 	ToggleButton timerStartStop;
 	private NumberPicker minValue, maxValue;
-	int minPicker = -100;
+	int minPicker = 0;
 	int maxPicker = 100;
 	int currentMinPicker = minPicker;
 	int currentMaxPicker = maxPicker;
@@ -144,25 +144,21 @@ public class WiFiSensing extends Fragment {
 		    }
 		});
 
-		String[] sensorNums = new String[(maxPicker*2) + 1];
+		String[] sensorNums = new String[maxPicker + 1];
 		for (int i = 0; i < sensorNums.length; i++) {
-			if(i<maxPicker){
-				sensorNums[i] = "-"+Integer.toString(maxPicker - i);
-			}else{
-				sensorNums[i] = Integer.toString(i-maxPicker);
-			}
+			sensorNums[i] = Integer.toString(i);
 		}
 
 		minValue = (NumberPicker) view.findViewById(R.id.minValue);
-		minValue.setMinValue(0);
-		minValue.setMaxValue(maxPicker - minPicker);
+		minValue.setMinValue(minPicker);
+		minValue.setMaxValue(maxPicker);
 		minValue.setWrapSelectorWheel(false);
 		minValue.setDisplayedValues(sensorNums);
 		minValue.setValue(currentMinPicker);
 
 		maxValue = (NumberPicker) view.findViewById(R.id.maxValue);
-		maxValue.setMinValue(0);
-		maxValue.setMaxValue(maxPicker - minPicker);
+		maxValue.setMinValue(minPicker);
+		maxValue.setMaxValue(maxPicker);
 		maxValue.setWrapSelectorWheel(false);
 		maxValue.setDisplayedValues(sensorNums);
 		maxValue.setValue(currentMaxPicker);
@@ -239,12 +235,6 @@ public class WiFiSensing extends Fragment {
 		return getArguments().getBoolean("testFlag");
 	}
     
-    public void StartScaning(){
-    	while(true){
-    		
-    	}
-    }
-    
     class WifiScanReceiver extends BroadcastReceiver{
     	@SuppressLint ("UseValueOf")
     	public void onReceive(Context c, Intent intent){ 
@@ -258,14 +248,14 @@ public class WiFiSensing extends Fragment {
     		}
     		
     		Arrays.sort(levels);
-    		_sensorValue = levels[0];if (testFlag == false) {
-    			fragmentTitle.setText("WiFi Sensing");
-        		mWiFiValue.setText("Strongest Level: " + levels[0]);
-    		}
-    		
-            mainWifiObj.startScan();
+    		_sensorValue = levels[0];
             
-            sendData(_sensorValue);
+    		if (testFlag == false) {
+    			fragmentTitle.setText("WiFi Sensing");
+        		mWiFiValue.setText("Strongest Level: " + Math.abs(_sensorValue));
+    		}
+
+            mainWifiObj.startScan();   
     	}
     }
     
@@ -273,8 +263,8 @@ public class WiFiSensing extends Fragment {
 		if (!mBound)
 			return;
 
-		final float rate = mapValue.map(_sensorValue, maxValue.getValue(),
-				minValue.getValue(), (float) 500, (float) 5);
+		final float rate = mapValue.map(Math.abs(v), maxValue.getValue(),
+				minValue.getValue(), (float) 1000, (float) 5);
 
 		// Create and send a message to the service, using a supported
 		// 'what' value
@@ -311,15 +301,17 @@ public class WiFiSensing extends Fragment {
     			WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
 		getActivity().startService(IOIOIntent);
+		
 
 		/*** Graph ****/
 		mTimer2 = new Runnable() {
 			@Override
 			public void run() {
+				sendData(_sensorValue);
 				graph2LastXValue += 1d;
 				if (testFlag == false) {
 					exampleSeries.appendData(new GraphViewData(
-							graph2LastXValue, _sensorValue), true, 10);
+							graph2LastXValue, Math.abs(_sensorValue)), true, 10);
 				}else{
 					exampleSeries.appendData(new GraphViewData(
 							graph2LastXValue, 0), true, 10);
